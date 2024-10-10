@@ -16,13 +16,12 @@ from bcs_models import *
 from manifold import *
 from numpy import linspace, array, eye, zeros, repeat, concatenate, delete, diag
 from numpy.linalg import inv
-from matplotlib.pyplot import plot, figure
+from matplotlib.pyplot import plot, figure, title
 from matplotlib.ticker import AutoMinorLocator, ScalarFormatter
 
 from scipy.optimize import fsolve
 from control import ss, tf, sample_system, forced_response
 from scipy.signal import ss2tf
-
 
 #%% Creating functions of BCS, Choke and Pipes
 
@@ -235,3 +234,72 @@ F = integrator('F', 'idas', dae, 0, grid)
 
 res = F(x0 = x_ss, z0 = z_ss, p = u0)
 
+
+import matplotlib.pyplot as plt
+import matplotlib.pyplot
+from matplotlib import rcParams
+rcParams['axes.formatter.useoffset'] = False
+
+from numpy import array
+
+Array_xf = array(res['xf'])
+Array_zf = array(res['zf'])
+
+
+
+plt.plot(grid, Array_zf[[1, 3, 5, 7], :].transpose())
+matplotlib.pyplot.title("Pressure Discharge in ESP's")
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Pressure(bar)')
+plt.ylim([109, 110])
+plt.grid()
+plt.show()
+
+plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
+matplotlib.pyplot.title("Pressure Intake in ESP's")
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Pressure(bar)')
+plt.ylim([60.5,60.7])
+plt.grid()
+plt.show()
+
+
+plt.plot(grid, Array_xf[[2, 5, 8, 11], :].transpose())
+matplotlib.pyplot.title('Pressure fbhp')
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Pressure(bar)')
+plt.ylim([78.9, 79])
+plt.grid()
+plt.show()
+
+plt.plot(grid, Array_xf[[3, 6, 9, 12], :].transpose())
+matplotlib.pyplot.title('Pressure in Chokes')
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Pressure(bar)')
+plt.ylim([70,90])
+plt.grid()
+plt.show()
+
+plt.plot(grid, Array_xf[[4, 7, 10, 13], :].transpose())
+matplotlib.pyplot.title('Average Flow in the Wells')
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Flow Rate(m^3/s)')
+plt.ylim([0,100])
+plt.grid()
+plt.show()
+
+plt.plot(grid, Array_xf[[1], :].transpose())
+matplotlib.pyplot.title('Flow Through the Transportation Line')
+matplotlib.pyplot.xlabel('Tempo(s)')
+matplotlib.pyplot.ylabel('Flow Rate(m^3/s)')
+plt.ylim([180,200])
+plt.grid()
+plt.show()
+
+plt.plot(grid, Array_xf[[0], :].transpose())
+matplotlib.pyplot.title('Manifold Pressure')
+matplotlib.pyplot.xlabel('Time(s)')
+matplotlib.pyplot.ylabel('Pressure(Pa)')
+plt.ylim([0,10])
+plt.grid()
+plt.show()
