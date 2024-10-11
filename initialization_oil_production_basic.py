@@ -8,10 +8,10 @@ Rasmus (2011) - Automatic Start-up and Control of Artificially Lifted Wells
 
 @authors: Rodrigo Lima Meira e Daniel Diniz Santana
 """
-
+import numpy as np
 #%% Package import
 
-from casadi import MX, interpolant, Function, sqrt, vertcat, integrator, jacobian
+from casadi import MX, interpolant, Function, sqrt, vertcat, integrator, jacobian, transpose
 from bcs_models import *
 from manifold import *
 from numpy import linspace, array, eye, zeros, repeat, concatenate, delete, diag
@@ -190,7 +190,7 @@ z += [P_intake_4, dP_bcs_4]
 mani_model = mani.model(0, x, z, u)
 
 #%% Evaluation of steady-state
-u0 = [56., 10 ** 5, 50., .5, 50., .5, 50., .5, 50., .5]
+u0 = [56., 10 ** 5, 50., .7, 50., .7, 50., .7, 50., .7]
 
 x0 = [76.52500, 4 * 85,
       64.11666, 120.91641, 85,
@@ -229,52 +229,70 @@ dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*man
 tfinal = 5000 # [s]
 
 grid = linspace(0, tfinal, 100)
-
+Lista_xf = []
+Lista_zf = []
 F = integrator('F', 'idas', dae, 0, grid)
 
-u0 = [56., 10 ** 5, 50., .6, 50., .5, 50., .5, 50., .5]
 
 res = F(x0 = x_ss, z0 = z_ss, p = u0)
+Lista_xf.append(res["xf"])
+Lista_zf.append(res["zf"])
+x0 = Lista_xf[-1][:, -1]
+z0 = Lista_zf[-1][:, -1]
+
+for i in range(2):
+    delta = 5000
+    grid = linspace(tfinal,tfinal + delta , 100)
+    tfinal += delta
+    open_valve = np.linspace(0.3, 0.8, 4)
+    u0 = [56., 20 ** 5, 50., open_valve[0], 50., open_valve[1], 50., open_valve[2], 50., open_valve[3]]
+    res = F(x0 = x0, z0 = z0, p = u0)
+    Lista_xf.append(res["xf"])
+    Lista_zf.append(res["zf"])
+    x0 = Lista_xf[-1][:, -1]
+    z0 = Lista_zf[-1][:, -1]
 
 
 
+
+
+
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.pyplot
 from matplotlib import rcParams
 rcParams['axes.formatter.useoffset'] = False
 
+
 from numpy import array
+Lista_zf = np.array(Lista_zf)
+for i in range(2):
+    transpose_arrayz = np.array(Lista_zf[[1, 3, 5, 7], :].transpose())
+    plt.plot(grid, Lista_zf[[1, 3, 5, 7], :].transpose())
+    matplotlib.pyplot.title("Pressure Discharge in ESP's")
+    matplotlib.pyplot.xlabel('Time/(s)')
+    matplotlib.pyplot.ylabel('Pressure/(bar)')
+    plt.ylim([50,130])
+    plt.grid()
+    plt.show()
 
-Array_xf = array(res['xf'])
-Array_zf = array(res['zf'])
-
-
-
-plt.plot(grid, Array_zf[[1, 3, 5, 7], :].transpose())
-matplotlib.pyplot.title("Pressure Discharge in ESP's")
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([50,130])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
-matplotlib.pyplot.title("Pressure Intake in ESP's")
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([0,100])
-plt.grid()
-plt.show()
-
-
-plt.plot(grid, Array_xf[[2, 5, 8, 11], :].transpose())
-matplotlib.pyplot.title("'Pressure fbhp in ESP's")
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([70, 90])
-plt.grid()
-plt.show()
-
+# plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
+# matplotlib.pyplot.title("Pressure Intake in ESP's")
+# matplotlib.pyplot.xlabel('Time/(s)')
+# matplotlib.pyplot.ylabel('Pressure/(bar)')
+# plt.ylim([0,100])
+# plt.grid()
+# plt.show()
+#
+#
+# plt.plot(grid, Array_xf[[2, 5, 8, 11], :].transpose())
+# matplotlib.pyplot.title("'Pressure fbhp in ESP's")
+# matplotlib.pyplot.xlabel('Time/(s)')
+# matplotlib.pyplot.ylabel('Pressure/(bar)')
+# plt.ylim([70, 90])
+# plt.grid()
+# plt.show()
+#
 # plt.plot(grid, Array_xf[[3, 6, 9, 12], :].transpose())
 # matplotlib.pyplot.title('Pressure in Chokes')
 # matplotlib.pyplot.xlabel('Time/(s)')
@@ -282,27 +300,27 @@ plt.show()
 # plt.ylim([70,90])
 # plt.grid()
 # plt.show()
-
-plt.plot(grid, Array_xf[[4, 7, 10, 13], :].transpose())
-matplotlib.pyplot.title('Average Flow in the Wells')
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Flow/(m^3/s)')
-plt.ylim([0,100])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Array_xf[[1], :].transpose())
-matplotlib.pyplot.title('Flow Through the Transportation Line')
-matplotlib.pyplot.xlabel('Tempo/(s)')
-matplotlib.pyplot.ylabel('Flow Rate/(m^3/s)')
-plt.ylim([150,250])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Array_xf[[0], :].transpose())
-matplotlib.pyplot.title('Manifold Pressure')
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(Pa)')
-plt.ylim([0,100])
-plt.grid()
-plt.show()
+#
+# plt.plot(grid, Array_xf[[4, 7, 10, 13], :].transpose())
+# matplotlib.pyplot.title('Average Flow in the Wells')
+# matplotlib.pyplot.xlabel('Time/(s)')
+# matplotlib.pyplot.ylabel('Flow/(m^3/s)')
+# plt.ylim([0,100])
+# plt.grid()
+# plt.show()
+#
+# plt.plot(grid, Array_xf[[1], :].transpose())
+# matplotlib.pyplot.title('Flow Through the Transportation Line')
+# matplotlib.pyplot.xlabel('Tempo/(s)')
+# matplotlib.pyplot.ylabel('Flow Rate/(m^3/s)')
+# plt.ylim([150,250])
+# plt.grid()
+# plt.show()
+#
+# plt.plot(grid, Array_xf[[0], :].transpose())
+# matplotlib.pyplot.title('Manifold Pressure')
+# matplotlib.pyplot.xlabel('Time/(s)')
+# matplotlib.pyplot.ylabel('Pressure/(Pa)')
+# plt.ylim([0,100])
+# plt.grid()
+# plt.show()
