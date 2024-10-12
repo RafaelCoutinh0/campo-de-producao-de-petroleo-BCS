@@ -226,7 +226,7 @@ z0 = [30.03625, 239.95338-30.03625,
 dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
        'alg': vertcat(*mani_model[-8:])}
 
-tfinal = 5000 # [s]
+tfinal = 1000 # [s]
 
 grid = linspace(0, tfinal, 100)
 Lista_xf = []
@@ -246,7 +246,7 @@ Lista_zf_reshaped = Lista_zf.reshape(8, 100)
 Lista_xf_reshaped = Lista_xf.reshape(14, 100)
 
 for i in range(2):
-    delta = 5000
+    delta = 1000
     grid = linspace(tfinal,tfinal + delta , 100)
     tfinal += delta
     open_valve = np.linspace(0.4, 0.6, 8)
@@ -262,12 +262,6 @@ for i in range(2):
     Lista_zf_reshaped = np.hstack((Lista_zf_reshaped, np.array(res["zf"])))
     x0 = Lista_xf_reshaped[:,-1]
     z0 = Lista_zf_reshaped[:,-1]
-
-
-
-
-
-
 
 
 import numpy as np
@@ -325,12 +319,6 @@ matplotlib.pyplot.ylabel('Pressure/(Pa)')
 plt.ylim([0,100])
 plt.grid()
 plt.show()
-
-print(res)
-<<<<<<< Updated upstream
-# gargalo
-=======
->>>>>>> Stashed changes
 
 # p_intake é desnecessário
 # plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
