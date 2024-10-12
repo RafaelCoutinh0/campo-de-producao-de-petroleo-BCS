@@ -285,16 +285,7 @@ matplotlib.pyplot.ylabel('Pressure/(bar)')
 plt.ylim([100,120])
 plt.grid()
 plt.show()
-# p_intake é desnecessário
-# plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
-# matplotlib.pyplot.title("Pressure Intake in ESP's")
-# matplotlib.pyplot.xlabel('Time/(s)')
-# matplotlib.pyplot.ylabel('Pressure/(bar)')
-# plt.ylim([0,100])
-# plt.grid()
-# plt.show()
-#
-#
+
 plt.plot(grid, Lista_xf_reshaped[[2, 5, 8, 11], :].transpose())
 matplotlib.pyplot.title("'Pressure fbhp in ESP's")
 matplotlib.pyplot.xlabel('Time/(s)')
@@ -334,3 +325,18 @@ matplotlib.pyplot.ylabel('Pressure/(Pa)')
 plt.ylim([0,100])
 plt.grid()
 plt.show()
+
+print(res)
+<<<<<<< Updated upstream
+# gargalo
+=======
+>>>>>>> Stashed changes
+
+# p_intake é desnecessário
+# plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
+# matplotlib.pyplot.title("Pressure Intake in ESP's")
+# matplotlib.pyplot.xlabel('Time/(s)')
+# matplotlib.pyplot.ylabel('Pressure/(bar)')
+# plt.ylim([0,100])
+# plt.grid()
+# plt.show()
