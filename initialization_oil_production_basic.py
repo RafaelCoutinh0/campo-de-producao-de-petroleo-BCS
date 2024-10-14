@@ -270,10 +270,25 @@ for i in range(4):
 
 
 #%% Plotted Graphs
-
-grid = linspace(0, tfinal, 100*grid_cont)
-
 rcParams['axes.formatter.useoffset'] = False
+
+def Auto_plot(i,t, xl,yl,yi,yf):
+    grid = linspace(0, tfinal, 100*grid_cont)
+    plt.plot(grid, i.transpose())
+    matplotlib.pyplot.title(t)
+    matplotlib.pyplot.xlabel(xl)
+    matplotlib.pyplot.ylabel(yl)
+    plt.ylim([yi,yf])
+    plt.grid()
+    plt.show()
+
+    
+Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(s)','Pressure/(bar)', 107, 113)
+Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(s)','Pressure/(bar)', 76, 82)
+Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(s)','Pressure/(bar)', 70, 90)
+Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(s)','Flow Rate/(m^3/s)', 40,60)
+Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(s)','Flow Rate/(m^3/s)', 160,220)
+Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(s)','Pressure/(Pa)', 0, 60)
 
 plt.plot(grid, Lista_zf_reshaped[[1, 3, 5, 7], :].transpose())
 matplotlib.pyplot.title("Pressure Discharge in ESP's")
