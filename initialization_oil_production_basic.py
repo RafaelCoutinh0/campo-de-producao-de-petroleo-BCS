@@ -245,7 +245,8 @@ Lista_zf = np.array(Lista_zf)
 Lista_xf = np.array(Lista_xf)
 Lista_zf_reshaped = Lista_zf.reshape(8, 100)
 Lista_xf_reshaped = Lista_xf.reshape(14, 100)
-valve_open = [random.uniform(0.5, 1) for _ in range(4)]
+valve_open = [.45,1,.5,.6]
+# valve_open = [random.uniform(0.4, 1) for _ in range(4)]
 grid_cont = 1
 for i in range(4):
     grid_cont += 1
@@ -271,7 +272,7 @@ def Auto_plot(i,t, xl,yl, c):
     matplotlib.pyplot.ylabel(yl)
     conc = np.concatenate(i)
     y_min,y_max = np.min(conc), np.max(conc)
-    plt.ylim([y_min - 0.1 * abs(y_min), y_max + 0.1 * abs(y_max)])
+    plt.ylim([y_min - 0.1 * abs(y_max), y_max + 0.1 * abs(y_max)])
     plt.grid()
     plt.show()
 
