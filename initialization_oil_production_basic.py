@@ -235,7 +235,6 @@ Lista_xf = []
 Lista_zf = []
 F = integrator('F', 'idas', dae, 0, grid)
 
-
 res = F(x0 = x_ss, z0 = z_ss, p = u0)
 
 Lista_xf.append(res["xf"])
@@ -246,21 +245,14 @@ Lista_zf = np.array(Lista_zf)
 Lista_xf = np.array(Lista_xf)
 Lista_zf_reshaped = Lista_zf.reshape(8, 100)
 Lista_xf_reshaped = Lista_xf.reshape(14, 100)
-valve_open = [random.uniform(0.4, .8) for _ in range(4)]
+valve_open = [random.uniform(0.5, 1) for _ in range(4)]
 grid_cont = 1
 for i in range(4):
     grid_cont += 1
     delta = 1000
     grid = linspace(tfinal,tfinal + delta , 100)
     tfinal += delta
-    # valve_open = np.linspace(0.4, 0.6, 8)
     u0 = [56., 20 ** 5, 50., valve_open[i], 50., valve_open[i], 50., valve_open[i], 50., valve_open[i]]
-    # if i == 0:
-    #     u0 = [56., 20 ** 5, 50., open_valve[4], 50., open_valve[5], 50., open_valve[6], 50., open_valve[7]]
-    # if i == 1:
-    #     u0 = [56., 20 ** 5, 50., open_valve[0], 50., open_valve[1], 50., open_valve[2], 50., open_valve[3]]
-
-
     res = F(x0 = x0, z0 = z0, p = u0)
     np.hstack((Lista_zf_reshaped, res["zf"]))
     Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
@@ -271,78 +263,24 @@ for i in range(4):
 
 #%% Plotted Graphs
 rcParams['axes.formatter.useoffset'] = False
-
-def Auto_plot(i,t, xl,yl,yi,yf):
-    grid = linspace(0, tfinal, 100*grid_cont)
-    plt.plot(grid, i.transpose())
+grid = linspace(0, tfinal, 100*grid_cont)
+def Auto_plot(i,t, xl,yl, c):
+    plt.plot(grid, i.transpose(), c)
     matplotlib.pyplot.title(t)
     matplotlib.pyplot.xlabel(xl)
     matplotlib.pyplot.ylabel(yl)
-    plt.ylim([yi,yf])
+    conc = np.concatenate(i)
+    y_min,y_max = np.min(conc), np.max(conc)
+    plt.ylim([y_min - 0.1 * abs(y_min), y_max + 0.1 * abs(y_max)])
     plt.grid()
     plt.show()
 
-    
-Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(s)','Pressure/(bar)', 107, 113)
-Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(s)','Pressure/(bar)', 76, 82)
-Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(s)','Pressure/(bar)', 70, 90)
-Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(s)','Flow Rate/(m^3/s)', 40,60)
-Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(s)','Flow Rate/(m^3/s)', 160,220)
-Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(s)','Pressure/(Pa)', 0, 60)
-
-plt.plot(grid, Lista_zf_reshaped[[1, 3, 5, 7], :].transpose())
-matplotlib.pyplot.title("Pressure Discharge in ESP's")
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([107,113])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Lista_xf_reshaped[[2, 5, 8, 11], :].transpose())
-matplotlib.pyplot.title("'Pressure fbhp in ESP's")
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([76, 82])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Lista_xf_reshaped[[3, 6, 9, 12], :].transpose())
-matplotlib.pyplot.title('Pressure in Chokes')
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(bar)')
-plt.ylim([70,90])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Lista_xf_reshaped[[4, 7, 10, 13], :].transpose())
-matplotlib.pyplot.title('Average Flow in the Wells')
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Flow/(m^3/s)')
-plt.ylim([40,60])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Lista_xf_reshaped[[1], :].transpose())
-matplotlib.pyplot.title('Flow Through the Transportation Line')
-matplotlib.pyplot.xlabel('Tempo/(s)')
-matplotlib.pyplot.ylabel('Flow Rate/(m^3/s)')
-plt.ylim([160,220])
-plt.grid()
-plt.show()
-
-plt.plot(grid, Lista_xf_reshaped[[0], :].transpose())
-matplotlib.pyplot.title('Manifold Pressure')
-matplotlib.pyplot.xlabel('Time/(s)')
-matplotlib.pyplot.ylabel('Pressure/(Pa)')
-plt.ylim([0,60])
-plt.grid()
-plt.show()
+Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(s)','Pressure/(bar)', 'b')
+Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(s)','Pressure/(bar)', 'r')
+Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(s)','Pressure/(bar)', 'g')
+Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(s)','Flow Rate/(m^3/s)', 'k')
+Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(s)','Flow Rate/(m^3/s)', 'y')
+Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(s)','Pressure/(Pa)', 'm')
 
 #%% p_intake é desnecessário
-# plt.plot(grid, Array_zf[[0, 2, 4, 6], :].transpose())
-# matplotlib.pyplot.title("Pressure Intake in ESP's")
-# matplotlib.pyplot.xlabel('Time/(s)')
-# matplotlib.pyplot.ylabel('Pressure/(bar)')
-# plt.ylim([0,100])
-# plt.grid()
-# plt.show()
+# Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(s)', 'Pressure/(bar)')
