@@ -2,9 +2,6 @@
 
 from numpy import pi
 
-# Comentario de Silas
-#crafa
-
 class Manifold:
     """
     Class to describe the manifold model
