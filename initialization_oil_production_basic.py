@@ -107,13 +107,14 @@ bcs4 = Pump(head_fun, efficiency_fun, power_fun)
 booster = Pump(booster_fun, efficiency_fun, power_fun)
 
 # Defining the valves in the wells
-
+# k_choke: valve constant [m^3/s/Pa^0.5]
 choke1 = Choke(212.54 / (6e+4 * sqrt(1e+5)), valve_fun)
 choke2 = Choke(212.54 / (6e+4 * sqrt(1e+5)), valve_fun)
 choke3 = Choke(212.54 / (6e+4 * sqrt(1e+5)), valve_fun)
 choke4 = Choke(212.54 / (6e+4 * sqrt(1e+5)), valve_fun)
 
 # Defining the wells and the manifold
+#choke1 = [m^3/s/Pa^0.5]
 
 well1 = Well(pipe_sec1, pipe_sec2, bcs1, choke1, 6.9651e-9, 9800000)
 well2 = Well(pipe_sec1, pipe_sec2, bcs2, choke2, 6.9651e-9, 9800000)
@@ -147,8 +148,8 @@ alpha_4 = MX.sym('alpha_4')  # [%] Choke opening
 u += [f_ESP_4, alpha_4]
 
 # States and algebraic variables
-p_man = MX.sym('p_man')  # [Pa] manifold pressure
-q_tr = MX.sym('q_tr')  # [m^3/s] Flow through the transportation line
+p_man = MX.sym('p_man')  # [bar] manifold pressure
+q_tr = MX.sym('q_tr')  # [m^3/h] Flow through the transportation line
 x = [p_man, q_tr] # states
 z = [] # algebraic variables
 
@@ -276,12 +277,12 @@ def Auto_plot(i,t, xl,yl, c):
     plt.grid()
     plt.show()
 
-Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(s)','Pressure/(bar)', 'b')
-Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(s)','Pressure/(bar)', 'r')
-Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(s)','Pressure/(bar)', 'g')
-Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(s)','Flow Rate/(m^3/s)', 'k')
-Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(s)','Flow Rate/(m^3/s)', 'y')
-Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(s)','Pressure/(Pa)', 'm')
+Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(h)','Pressure/(bar)', 'b')
+Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(h)','Pressure/(bar)', 'r')
+Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(h)','Pressure/(bar)', 'g')
+Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(h)','Flow Rate/(m^3/h)', 'k')
+Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(h)','Flow Rate/(m^3/h)', 'y')
+Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(h)','Pressure/(bar)', 'm')
 
 #%% p_intake é desnecessário
-# Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(s)', 'Pressure/(bar)')
+# Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(h)', 'Pressure/(bar)')
