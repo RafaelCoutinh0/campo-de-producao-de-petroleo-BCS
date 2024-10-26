@@ -242,14 +242,17 @@ Lista_xf.append(res["xf"])
 Lista_zf.append(res["zf"])
 x0 = Lista_xf[-1][:, -1]
 z0 = Lista_zf[-1][:, -1]
+map_est = []
+# map_est.append(x0)
+# map_est.append(z0)
 Lista_zf = np.array(Lista_zf)
 Lista_xf = np.array(Lista_xf)
 Lista_zf_reshaped = Lista_zf.reshape(8, 100)
 Lista_xf_reshaped = Lista_xf.reshape(14, 100)
-valve_open = [.45,1,.5,.6]
-# valve_open = [random.uniform(0.4, 1) for _ in range(4)]
+# valve_open = [.45,1,.5,.6]
+valve_open = [random.uniform(.42, 1) for _ in range(1000)]
 grid_cont = 1
-for i in range(4):
+for i in range(1000):
     grid_cont += 1
     delta = 1000
     grid = linspace(tfinal,tfinal + delta , 100)
@@ -261,6 +264,9 @@ for i in range(4):
     Lista_zf_reshaped = np.hstack((Lista_zf_reshaped, np.array(res["zf"])))
     x0 = Lista_xf_reshaped[:,-1]
     z0 = Lista_zf_reshaped[:,-1]
+    map_est.append(x0)
+    map_est.append(z0)
+
 
 
 #%% Plotted Graphs
@@ -277,12 +283,109 @@ def Auto_plot(i,t, xl,yl, c):
     plt.grid()
     plt.show()
 
-Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(h)','Pressure/(bar)', 'b')
-Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(h)','Pressure/(bar)', 'r')
-Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(h)','Pressure/(bar)', 'g')
-Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(h)','Flow Rate/(m^3/h)', 'k')
-Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(h)','Flow Rate/(m^3/h)', 'y')
-Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(h)','Pressure/(bar)', 'm')
+# Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(h)','Pressure/(bar)', 'b')
+# Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(h)','Pressure/(bar)', 'r')
+# Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(h)','Pressure/(bar)', 'g')
+# Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(h)','Flow Rate/(m^3/h)', 'k')
+# Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(h)','Flow Rate/(m^3/h)', 'y')
+# Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(h)','Pressure/(bar)', 'm')
 
 #%% p_intake é desnecessário
 # Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(h)', 'Pressure/(bar)')
+
+
+#%% mapeando modos estacionários
+est_P_man = []
+est_q_tr = []
+est_P_fbhp = []
+est_P_choke = []
+est_q_main = []
+est_P_intake = []
+est_dP_bcs = []
+
+for i in range(len(map_est)):
+    if (i % 2) == 0:
+        # if i == 0:
+        #     est_P_man.append(np.array(map_est[i][0]))
+        #     est_P_man[0] = est_P_man[0][0][0]
+        #
+        #     est_q_tr.append(np.array(map_est[i][1]))
+        #     est_q_tr[0] = est_q_tr[0][0][0]
+        #
+        #     est_P_fbhp.append(np.array(map_est[i][2]))
+        #     est_P_fbhp[0] = est_P_fbhp[0][0][0]
+        #     est_P_fbhp.append(np.array(map_est[i][5]))
+        #     est_P_fbhp[1] = est_P_fbhp[1][0][0]
+        #     est_P_fbhp.append(np.array(map_est[i][8]))
+        #     est_P_fbhp[2] = est_P_fbhp[2][0][0]
+        #     est_P_fbhp.append(np.array(map_est[i][11]))
+        #     est_P_fbhp[3] = est_P_fbhp[3][0][0]
+        #
+        #
+        #     est_P_choke.append(np.array(map_est[i][3]))
+        #     est_P_choke[0] = est_P_choke[0][0][0]
+        #     est_P_choke.append(np.array(map_est[i][6]))
+        #     est_P_choke[1] = est_P_choke[1][0][0]
+        #     est_P_choke.append(np.array(map_est[i][9]))
+        #     est_P_choke[2] = est_P_choke[2][0][0]
+        #     est_P_choke.append(np.array(map_est[i][12]))
+        #     est_P_choke[3] = est_P_choke[3][0][0]
+        #
+        #     est_q_main.append(np.array(map_est[i][4]))
+        #     est_q_main[0] = est_q_main[0][0][0]
+        #     est_q_main.append(np.array(map_est[i][7]))
+        #     est_q_main[1] = est_q_main[1][0][0]
+        #     est_q_main.append(np.array(map_est[i][10]))
+        #     est_q_main[2] = est_q_main[2][0][0]
+        #     est_q_main.append(np.array(map_est[i][13]))
+        #     est_q_main[3] = est_q_main[3][0][0]
+        #
+        # else:
+        est_P_man.append(map_est[i][0])
+        est_q_tr.append(map_est[i][1])
+        est_P_fbhp.append(map_est[i][2])
+        est_P_fbhp.append(map_est[i][5])
+        est_P_fbhp.append(map_est[i][8])
+        est_P_fbhp.append(map_est[i][11])
+        est_P_choke.append(map_est[i][3])
+        est_P_choke.append(map_est[i][6])
+        est_P_choke.append(map_est[i][9])
+        est_P_choke.append(map_est[i][12])
+        est_q_main.append(map_est[i][4])
+        est_q_main.append(map_est[i][7])
+        est_q_main.append(map_est[i][10])
+        est_q_main.append(map_est[i][13])
+    else:
+        # if i == 1:
+        #     est_P_intake.append(np.array(map_est[i][0]))
+        #     est_P_intake[0] = est_P_intake[0][0][0]
+        #     est_P_intake.append(np.array(map_est[i][2]))
+        #     est_P_intake[1] = est_P_intake[1][0][0]
+        #     est_P_intake.append(np.array(map_est[i][4]))
+        #     est_P_intake[2] = est_P_intake[2][0][0]
+        #     est_P_intake.append(np.array(map_est[i][6]))
+        #     est_P_intake[3] = est_P_intake[3][0][0]
+        #     est_dP_bcs.append(np.array(map_est[i][1]))
+        #     est_dP_bcs[0] = est_dP_bcs[0][0][0]
+        #     est_dP_bcs.append(np.array(map_est[i][3]))
+        #     est_dP_bcs[1] = est_dP_bcs[1][0][0]
+        #     est_dP_bcs.append(np.array(map_est[i][5]))
+        #     est_dP_bcs[2] = est_dP_bcs[2][0][0]
+        #     est_dP_bcs.append(np.array(map_est[i][7]))
+        #     est_dP_bcs[3] = est_dP_bcs[3][0][0]
+        # else:
+        est_P_intake.append(map_est[i][0])
+        est_P_intake.append(map_est[i][2])
+        est_P_intake.append(map_est[i][4])
+        est_P_intake.append(map_est[i][6])
+        est_dP_bcs.append(map_est[i][1])
+        est_dP_bcs.append(map_est[i][3])
+        est_dP_bcs.append(map_est[i][5])
+        est_dP_bcs.append(map_est[i][7])
+
+plt.plot(est_q_tr, est_P_man, 'ro')
+matplotlib.pyplot.title('Mapeamento dos estacionários')
+matplotlib.pyplot.xlabel('q_tr')
+matplotlib.pyplot.ylabel('P_man')
+plt.grid()
+plt.show()
