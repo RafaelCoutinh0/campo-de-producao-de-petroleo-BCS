@@ -235,8 +235,8 @@ Lista_zf.append(res["zf"])
 x0 = Lista_xf[-1][:, -1]
 z0 = Lista_zf[-1][:, -1]
 map_est = []
-# map_est.append(x0)
-# map_est.append(z0)
+map_est.append(x0)
+map_est.append(z0)
 Lista_zf = np.array(Lista_zf)
 Lista_xf = np.array(Lista_xf)
 Lista_zf_reshaped = Lista_zf.reshape(8, 100)
@@ -309,83 +309,83 @@ est_dP_bcs = []
 
 for i in range(len(map_est)):
     if (i % 2) == 0:
-        # if i == 0:
-        #     est_P_man.append(np.array(map_est[i][0]))
-        #     est_P_man[0] = est_P_man[0][0][0]
-        #
-        #     est_q_tr.append(np.array(map_est[i][1]))
-        #     est_q_tr[0] = est_q_tr[0][0][0]
-        #
-        #     est_P_fbhp.append(np.array(map_est[i][2]))
-        #     est_P_fbhp[0] = est_P_fbhp[0][0][0]
-        #     est_P_fbhp.append(np.array(map_est[i][5]))
-        #     est_P_fbhp[1] = est_P_fbhp[1][0][0]
-        #     est_P_fbhp.append(np.array(map_est[i][8]))
-        #     est_P_fbhp[2] = est_P_fbhp[2][0][0]
-        #     est_P_fbhp.append(np.array(map_est[i][11]))
-        #     est_P_fbhp[3] = est_P_fbhp[3][0][0]
-        #
-        #
-        #     est_P_choke.append(np.array(map_est[i][3]))
-        #     est_P_choke[0] = est_P_choke[0][0][0]
-        #     est_P_choke.append(np.array(map_est[i][6]))
-        #     est_P_choke[1] = est_P_choke[1][0][0]
-        #     est_P_choke.append(np.array(map_est[i][9]))
-        #     est_P_choke[2] = est_P_choke[2][0][0]
-        #     est_P_choke.append(np.array(map_est[i][12]))
-        #     est_P_choke[3] = est_P_choke[3][0][0]
-        #
-        #     est_q_main.append(np.array(map_est[i][4]))
-        #     est_q_main[0] = est_q_main[0][0][0]
-        #     est_q_main.append(np.array(map_est[i][7]))
-        #     est_q_main[1] = est_q_main[1][0][0]
-        #     est_q_main.append(np.array(map_est[i][10]))
-        #     est_q_main[2] = est_q_main[2][0][0]
-        #     est_q_main.append(np.array(map_est[i][13]))
-        #     est_q_main[3] = est_q_main[3][0][0]
-        #
-        # else:
-        est_P_man.append(map_est[i][0])
-        est_q_tr.append(map_est[i][1])
-        est_P_fbhp.append(map_est[i][2])
-        est_P_fbhp.append(map_est[i][5])
-        est_P_fbhp.append(map_est[i][8])
-        est_P_fbhp.append(map_est[i][11])
-        est_P_choke.append(map_est[i][3])
-        est_P_choke.append(map_est[i][6])
-        est_P_choke.append(map_est[i][9])
-        est_P_choke.append(map_est[i][12])
-        est_q_main.append(map_est[i][4])
-        est_q_main.append(map_est[i][7])
-        est_q_main.append(map_est[i][10])
-        est_q_main.append(map_est[i][13])
+        if i == 0:
+            est_P_man.append(np.array(map_est[i][0]))
+            est_P_man[0] = est_P_man[0][0][0]
+        
+            est_q_tr.append(np.array(map_est[i][1]))
+            est_q_tr[0] = est_q_tr[0][0][0]
+        
+            est_P_fbhp.append(np.array(map_est[i][2]))
+            est_P_fbhp[0] = est_P_fbhp[0][0][0]
+            est_P_fbhp.append(np.array(map_est[i][5]))
+            est_P_fbhp[1] = est_P_fbhp[1][0][0]
+            est_P_fbhp.append(np.array(map_est[i][8]))
+            est_P_fbhp[2] = est_P_fbhp[2][0][0]
+            est_P_fbhp.append(np.array(map_est[i][11]))
+            est_P_fbhp[3] = est_P_fbhp[3][0][0]
+        
+        
+            est_P_choke.append(np.array(map_est[i][3]))
+            est_P_choke[0] = est_P_choke[0][0][0]
+            est_P_choke.append(np.array(map_est[i][6]))
+            est_P_choke[1] = est_P_choke[1][0][0]
+            est_P_choke.append(np.array(map_est[i][9]))
+            est_P_choke[2] = est_P_choke[2][0][0]
+            est_P_choke.append(np.array(map_est[i][12]))
+            est_P_choke[3] = est_P_choke[3][0][0]
+        
+            est_q_main.append(np.array(map_est[i][4]))
+            est_q_main[0] = est_q_main[0][0][0]
+            est_q_main.append(np.array(map_est[i][7]))
+            est_q_main[1] = est_q_main[1][0][0]
+            est_q_main.append(np.array(map_est[i][10]))
+            est_q_main[2] = est_q_main[2][0][0]
+            est_q_main.append(np.array(map_est[i][13]))
+            est_q_main[3] = est_q_main[3][0][0]
+        
+        else:
+            est_P_man.append(map_est[i][0])
+            est_q_tr.append(map_est[i][1])
+            est_P_fbhp.append(map_est[i][2])
+            est_P_fbhp.append(map_est[i][5])
+            est_P_fbhp.append(map_est[i][8])
+            est_P_fbhp.append(map_est[i][11])
+            est_P_choke.append(map_est[i][3])
+            est_P_choke.append(map_est[i][6])
+            est_P_choke.append(map_est[i][9])
+            est_P_choke.append(map_est[i][12])
+            est_q_main.append(map_est[i][4])
+            est_q_main.append(map_est[i][7])
+            est_q_main.append(map_est[i][10])
+            est_q_main.append(map_est[i][13])
     else:
-        # if i == 1:
-        #     est_P_intake.append(np.array(map_est[i][0]))
-        #     est_P_intake[0] = est_P_intake[0][0][0]
-        #     est_P_intake.append(np.array(map_est[i][2]))
-        #     est_P_intake[1] = est_P_intake[1][0][0]
-        #     est_P_intake.append(np.array(map_est[i][4]))
-        #     est_P_intake[2] = est_P_intake[2][0][0]
-        #     est_P_intake.append(np.array(map_est[i][6]))
-        #     est_P_intake[3] = est_P_intake[3][0][0]
-        #     est_dP_bcs.append(np.array(map_est[i][1]))
-        #     est_dP_bcs[0] = est_dP_bcs[0][0][0]
-        #     est_dP_bcs.append(np.array(map_est[i][3]))
-        #     est_dP_bcs[1] = est_dP_bcs[1][0][0]
-        #     est_dP_bcs.append(np.array(map_est[i][5]))
-        #     est_dP_bcs[2] = est_dP_bcs[2][0][0]
-        #     est_dP_bcs.append(np.array(map_est[i][7]))
-        #     est_dP_bcs[3] = est_dP_bcs[3][0][0]
-        # else:
-        est_P_intake.append(map_est[i][0])
-        est_P_intake.append(map_est[i][2])
-        est_P_intake.append(map_est[i][4])
-        est_P_intake.append(map_est[i][6])
-        est_dP_bcs.append(map_est[i][1])
-        est_dP_bcs.append(map_est[i][3])
-        est_dP_bcs.append(map_est[i][5])
-        est_dP_bcs.append(map_est[i][7])
+        if i == 1:
+            est_P_intake.append(np.array(map_est[i][0]))
+            est_P_intake[0] = est_P_intake[0][0][0]
+            est_P_intake.append(np.array(map_est[i][2]))
+            est_P_intake[1] = est_P_intake[1][0][0]
+            est_P_intake.append(np.array(map_est[i][4]))
+            est_P_intake[2] = est_P_intake[2][0][0]
+            est_P_intake.append(np.array(map_est[i][6]))
+            est_P_intake[3] = est_P_intake[3][0][0]
+            est_dP_bcs.append(np.array(map_est[i][1]))
+            est_dP_bcs[0] = est_dP_bcs[0][0][0]
+            est_dP_bcs.append(np.array(map_est[i][3]))
+            est_dP_bcs[1] = est_dP_bcs[1][0][0]
+            est_dP_bcs.append(np.array(map_est[i][5]))
+            est_dP_bcs[2] = est_dP_bcs[2][0][0]
+            est_dP_bcs.append(np.array(map_est[i][7]))
+            est_dP_bcs[3] = est_dP_bcs[3][0][0]
+        else:
+            est_P_intake.append(map_est[i][0])
+            est_P_intake.append(map_est[i][2])
+            est_P_intake.append(map_est[i][4])
+            est_P_intake.append(map_est[i][6])
+            est_dP_bcs.append(map_est[i][1])
+            est_dP_bcs.append(map_est[i][3])
+            est_dP_bcs.append(map_est[i][5])
+            est_dP_bcs.append(map_est[i][7])
 
 plt.plot(est_q_tr, est_P_man, 'ro')
 matplotlib.pyplot.title('Mapeamento dos estacionários')
