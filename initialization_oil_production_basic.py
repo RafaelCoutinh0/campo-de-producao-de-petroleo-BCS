@@ -214,16 +214,8 @@ z_ss = y_ss[-8:]
 
 x_ss = y_ss[0:-8]
 
-x0 = [76.52500, 4 * 85,
-      64.11666, 120.91641, 85,
-      30.03625, 120.91641, 85,
-      64.11666, 120.91641, 85,
-      64.11666, 120.91641, 85]
+u_ss = u0
 
-z0 = [30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625]
 
 #%% Dynamic Simulation
 dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
@@ -236,7 +228,7 @@ Lista_xf = []
 Lista_zf = []
 F = integrator('F', 'idas', dae, 0, grid)
 
-res = F(x0 = x_ss, z0 = z_ss, p = u0)
+res = F(x0 = x_ss, z0 = z_ss, p = u_ss)
 
 Lista_xf.append(res["xf"])
 Lista_zf.append(res["zf"])
@@ -249,15 +241,27 @@ Lista_zf = np.array(Lista_zf)
 Lista_xf = np.array(Lista_xf)
 Lista_zf_reshaped = Lista_zf.reshape(8, 100)
 Lista_xf_reshaped = Lista_xf.reshape(14, 100)
-# valve_open = [.45,1,.5,.6]
-valve_open = [random.uniform(.42, 1) for _ in range(1000)]
+
+# criando as pertubações de u0
+valve_open1 = np.random.uniform(.42,1, 1000)
+valve_open2 = np.random.uniform(.42,1, 1000)
+valve_open3 = np.random.uniform(.42,1, 1000)
+valve_open4 = np.random.uniform(.42,1, 1000)
+bcs_freq1 =  np.random.uniform(35.,65., 1000)
+bcs_freq2 =  np.random.uniform(35.,65., 1000)
+bcs_freq3 =  np.random.uniform(35.,65., 1000)
+bcs_freq4 =  np.random.uniform(35.,65., 1000)
+booster_freq = np.random.uniform(35.,65., 1000)
+p_topo = np.random.uniform(8**5, 12**5, 1000)
+
+
 grid_cont = 1
 for i in range(1000):
     grid_cont += 1
     delta = 1000
     grid = linspace(tfinal,tfinal + delta , 100)
     tfinal += delta
-    u0 = [56., 20 ** 5, 50., valve_open[i], 50., valve_open[i], 50., valve_open[i], 50., valve_open[i]]
+    u0 = [booster_freq[i], p_topo[i], bcs_freq1[i], valve_open1[i], bcs_freq2[i], valve_open2[i], bcs_freq3[i], valve_open3[i],bcs_freq4[i], valve_open4[i]]
     res = F(x0 = x0, z0 = z0, p = u0)
     np.hstack((Lista_zf_reshaped, res["zf"]))
     Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
