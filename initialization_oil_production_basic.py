@@ -214,7 +214,7 @@ z_ss = y_ss[-8:]
 
 x_ss = y_ss[0:-8]
 
-u_ss = u0
+
 
 
 #%% Dynamic Simulation
@@ -228,7 +228,7 @@ Lista_xf = []
 Lista_zf = []
 F = integrator('F', 'idas', dae, 0, grid)
 
-res = F(x0 = x_ss, z0 = z_ss, p = u_ss)
+res = F(x0 = x_ss, z0 = z_ss, p = u0)
 
 Lista_xf.append(res["xf"])
 Lista_zf.append(res["zf"])
@@ -247,12 +247,12 @@ valve_open1 = np.random.uniform(.42,1, 1000)
 valve_open2 = np.random.uniform(.42,1, 1000)
 valve_open3 = np.random.uniform(.42,1, 1000)
 valve_open4 = np.random.uniform(.42,1, 1000)
-bcs_freq1 =  np.random.uniform(35.,65., 1000)
-bcs_freq2 =  np.random.uniform(35.,65., 1000)
-bcs_freq3 =  np.random.uniform(35.,65., 1000)
-bcs_freq4 =  np.random.uniform(35.,65., 1000)
-booster_freq = np.random.uniform(35.,65., 1000)
-p_topo = np.random.uniform(8**5, 12**5, 1000)
+bcs_freq1 =  np.random.randint(35.,65., 1000)
+bcs_freq2 =  np.random.randint(35.,65., 1000)
+bcs_freq3 =  np.random.randint(35.,65., 1000)
+bcs_freq4 =  np.random.randint(35.,65., 1000)
+booster_freq = np.random.randint(35.,65., 1000)
+p_topo = np.random.randint(8 ,12, 1000)
 
 
 grid_cont = 1
@@ -261,7 +261,7 @@ for i in range(1000):
     delta = 1000
     grid = linspace(tfinal,tfinal + delta , 100)
     tfinal += delta
-    u0 = [booster_freq[i], p_topo[i], bcs_freq1[i], valve_open1[i], bcs_freq2[i], valve_open2[i], bcs_freq3[i], valve_open3[i],bcs_freq4[i], valve_open4[i]]
+    u0 = [booster_freq[i], p_topo[i]**5, 50., valve_open1[i], 50., valve_open2[i], 50., valve_open3[i],50., valve_open4[i]]
     res = F(x0 = x0, z0 = z0, p = u0)
     np.hstack((Lista_zf_reshaped, res["zf"]))
     Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
