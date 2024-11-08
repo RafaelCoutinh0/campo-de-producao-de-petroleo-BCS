@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot
 from matplotlib import rcParams
 from casadi import MX, interpolant, Function, sqrt, vertcat, integrator, jacobian, transpose
+# from scipy.special import functions
+
 from bcs_models import *
 from manifold import *
 from numpy import linspace, array, eye, zeros, repeat, concatenate, delete, diag
@@ -192,7 +194,7 @@ z += [P_intake_4, dP_bcs_4]
 # Defining the symbolic manifold model
 mani_model = mani.model(0, x, z, u)
 
-#%% Evaluation of steady-state
+# %% Evaluation of steady-state
 u0 = [56., 10 ** 5, 50., .5, 50., .5, 50., .5, 50., .5]
 
 x0 = [76.52500, 4 * 85,
@@ -214,9 +216,6 @@ z_ss = y_ss[-8:]
 
 x_ss = y_ss[0:-8]
 
-
-
-
 #%% Dynamic Simulation
 dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
        'alg': vertcat(*mani_model[-8:])}
@@ -224,172 +223,182 @@ dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*man
 tfinal = 1000 # [s]
 
 grid = linspace(0, tfinal, 100)
-Lista_xf = []
-Lista_zf = []
+
 F = integrator('F', 'idas', dae, 0, grid)
 
 res = F(x0 = x_ss, z0 = z_ss, p = u0)
 
-Lista_xf.append(res["xf"])
-Lista_zf.append(res["zf"])
-x0 = Lista_xf[-1][:, -1]
-z0 = Lista_zf[-1][:, -1]
-map_est = []
-map_est.append(x0)
-map_est.append(z0)
-Lista_zf = np.array(Lista_zf)
-Lista_xf = np.array(Lista_xf)
-Lista_zf_reshaped = Lista_zf.reshape(8, 100)
-Lista_xf_reshaped = Lista_xf.reshape(14, 100)
+#%% funções criadas
+def plotar_graficos(n_pert):
+    u0 = [56., 10 ** 5, 50., .5, 50., .5, 50., .5, 50., .5]
 
-# criando as pertubações de u0
-valve_open1 = np.random.uniform(.42,1, 1000)
-valve_open2 = np.random.uniform(.42,1, 1000)
-valve_open3 = np.random.uniform(.42,1, 1000)
-valve_open4 = np.random.uniform(.42,1, 1000)
-bcs_freq1 =  np.random.randint(35.,65., 1000)
-bcs_freq2 =  np.random.randint(35.,65., 1000)
-bcs_freq3 =  np.random.randint(35.,65., 1000)
-bcs_freq4 =  np.random.randint(35.,65., 1000)
-booster_freq = np.random.randint(35.,65., 1000)
-p_topo = np.random.randint(8 ,12, 1000)
+    x0 = [76.52500, 4 * 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85]
 
+    z0 = [30.03625, 239.95338 - 30.03625,
+          30.03625, 239.95338 - 30.03625,
+          30.03625, 239.95338 - 30.03625,
+          30.03625, 239.95338 - 30.03625]
 
-grid_cont = 1
-for i in range(1000):
-    grid_cont += 1
-    delta = 1000
-    grid = linspace(tfinal,tfinal + delta , 100)
-    tfinal += delta
-    u0 = [booster_freq[i], p_topo[i]**5, 50., valve_open1[i], 50., valve_open2[i], 50., valve_open3[i],50., valve_open4[i]]
-    res = F(x0 = x0, z0 = z0, p = u0)
-    np.hstack((Lista_zf_reshaped, res["zf"]))
-    Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
-    Lista_zf_reshaped = np.hstack((Lista_zf_reshaped, np.array(res["zf"])))
-    x0 = Lista_xf_reshaped[:,-1]
-    z0 = Lista_zf_reshaped[:,-1]
+    mani_solver = lambda y: array([float(i) for i in mani.model(0, y[0:-8], y[-8:], u0)])
+
+    y_ss = fsolve(mani_solver, x0 + z0)
+
+    z_ss = y_ss[-8:]
+
+    x_ss = y_ss[0:-8]
+
+    dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
+           'alg': vertcat(*mani_model[-8:])}
+
+    tfinal = 1000  # [s]
+
+    grid = linspace(0, tfinal, 100)
+    Lista_xf = []
+    Lista_zf = []
+    F = integrator('F', 'idas', dae, 0, grid)
+
+    res = F(x0=x_ss, z0=z_ss, p=u0)
+
+    Lista_xf.append(res["xf"])
+    Lista_zf.append(res["zf"])
+    x0 = Lista_xf[-1][:, -1]
+    z0 = Lista_zf[-1][:, -1]
+    map_est = []
     map_est.append(x0)
     map_est.append(z0)
+    Lista_zf = np.array(Lista_zf)
+    Lista_xf = np.array(Lista_xf)
+    Lista_zf_reshaped = Lista_zf.reshape(8, 100)
+    Lista_xf_reshaped = Lista_xf.reshape(14, 100)
+
+    # criando as pertubações de u0
+    valve_open1 = np.random.uniform(.42, 1, n_pert)
+    valve_open2 = np.random.uniform(.42, 1, n_pert)
+    valve_open3 = np.random.uniform(.42, 1, n_pert)
+    valve_open4 = np.random.uniform(.42, 1, n_pert)
+    bcs_freq1 = np.random.randint(35., 65., n_pert)
+    bcs_freq2 = np.random.randint(35., 65., n_pert)
+    bcs_freq3 = np.random.randint(35., 65., n_pert)
+    bcs_freq4 = np.random.randint(35., 65., n_pert)
+    booster_freq = np.random.randint(35., 65., n_pert)
+    p_topo = np.random.uniform(8, 12, n_pert)
+
+    grid_cont = 1
+    for i in range(n_pert):
+        grid_cont += 1
+        delta = 1000
+        grid = linspace(tfinal, tfinal + delta, 100)
+        tfinal += delta
+        u0 = [booster_freq[i], p_topo[i] ** 5, 50., valve_open1[i], 50., valve_open2[i], 50., valve_open3[i], 50.,
+              valve_open4[i]]
+        res = F(x0=x0, z0=z0, p=u0)
+        x0 = res["xf"][:, -1]
+        z0 = res["zf"][:, -1]
+        map_est.append(x0)
+        map_est.append(z0)
+
+        Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
+        Lista_zf_reshaped = np.hstack((Lista_zf_reshaped, np.array(res["zf"])))
+
+        # #%% Plotted Graphs
+        rcParams['axes.formatter.useoffset'] = False
+        grid = linspace(0, tfinal, 100 * grid_cont)
+
+    def Auto_plot(i, t, xl, yl, c):
+        plt.plot(grid, i.transpose(), c)
+        matplotlib.pyplot.title(t)
+        matplotlib.pyplot.xlabel(xl)
+        matplotlib.pyplot.ylabel(yl)
+        conc = np.concatenate(i)
+        y_min, y_max = np.min(conc), np.max(conc)
+        plt.ylim([y_min - 0.1 * abs(y_max), y_max + 0.1 * abs(y_max)])
+        plt.grid()
+        plt.show()
+
+    Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :], "Pressure Discharge in ESP's", 'Time/(h)', 'Pressure/(bar)', 'b')
+    Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :], "Pressure fbhp in ESP's", 'Time/(h)', 'Pressure/(bar)', 'r')
+    Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :], 'Pressure in Chokes', 'Time/(h)', 'Pressure/(bar)', 'g')
+    Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :], 'Average Flow in the Wells', 'Time/(h)', 'Flow Rate/(m^3/h)', 'k')
+    Auto_plot(Lista_xf_reshaped[[1], :], 'Flow Through the Transportation Line', 'Time/(h)', 'Flow Rate/(m^3/h)','y')
+    Auto_plot(Lista_xf_reshaped[[0], :], 'Manifold Pressure', 'Time/(h)', 'Pressure/(bar)', 'm')
+
+    #%% p_intake é desnecessário
+    # Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(h)', 'Pressure/(bar)')
+
+def mapping_stationary(n_pert):
+
+    # %% Evaluation of steady-state
+    valve_open1 = np.random.uniform(.42, 1, n_pert)
+    valve_open2 = np.random.uniform(.42, 1, n_pert)
+    valve_open3 = np.random.uniform(.42, 1, n_pert)
+    valve_open4 = np.random.uniform(.42, 1, n_pert)
+    bcs_freq1 = np.random.randint(35., 65., n_pert)
+    bcs_freq2 = np.random.randint(35., 65., n_pert)
+    bcs_freq3 = np.random.randint(35., 65., n_pert)
+    bcs_freq4 = np.random.randint(35., 65., n_pert)
+    booster_freq = np.random.randint(35., 65., n_pert)
+    p_topo = np.random.uniform(8, 12, n_pert)
 
 
 
-#%% Plotted Graphs
-rcParams['axes.formatter.useoffset'] = False
-grid = linspace(0, tfinal, 100*grid_cont)
-def Auto_plot(i,t, xl,yl, c):
-    plt.plot(grid, i.transpose(), c)
-    matplotlib.pyplot.title(t)
-    matplotlib.pyplot.xlabel(xl)
-    matplotlib.pyplot.ylabel(yl)
-    conc = np.concatenate(i)
-    y_min,y_max = np.min(conc), np.max(conc)
-    plt.ylim([y_min - 0.1 * abs(y_max), y_max + 0.1 * abs(y_max)])
+    x0 = [76.52500, 4 * 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85,
+          64.11666, 120.91641, 85]
+
+    z0 = [30.03625, 239.95338-30.03625,
+          30.03625, 239.95338-30.03625,
+          30.03625, 239.95338-30.03625,
+          30.03625, 239.95338-30.03625]
+    est_P_man = []
+    est_q_tr = []
+    est_P_fbhp = [[]*4]
+    est_P_choke = []*4
+    est_q_main = []*4
+    est_P_intake = []*4
+    est_dP_bcs = []*4
+    for i in range(n_pert):
+        u0 = [booster_freq[i], p_topo[i] ** 5, bcs_freq1[i], valve_open1[i], bcs_freq2[i], valve_open2[i], bcs_freq3[i], valve_open3[i], bcs_freq4[i],valve_open4[i]]
+        mani_solver = lambda y: array([float(i) for i in mani.model(0, y[0:-8], y[-8:], u0)])
+        y_ss = fsolve(mani_solver, x0+z0)
+        z_ss = y_ss[-8:]
+        x_ss = y_ss[0:-8]
+        est_P_man.append(x_ss[0])
+        est_q_tr.append(x_ss[1])
+        # est_P_fbhp[0][0].append(x_ss[2])
+        # est_P_fbhp[0][1].append(x_ss[5])
+        # est_P_fbhp[0][2].append(x_ss[8])
+        # est_P_fbhp[0][3].append(x_ss[11])
+        #
+        # est_P_choke[0].append(x_ss[3])
+        # est_P_choke[1].append(x_ss[6])
+        # est_P_choke[2].append(x_ss[9])
+        # est_P_choke[3].append(x_ss[12])
+        #
+        # est_q_main[0].append(x_ss[4])
+        # est_q_main[1].append(x_ss[7])
+        # est_q_main[2].append(x_ss[10])
+        # est_q_main[3].append(x_ss[13])
+        #
+        # est_P_intake[0].append(z_ss[0])
+        # est_P_intake[1].append(z_ss[2])
+        # est_P_intake[2].append(z_ss[4])
+        # est_P_intake[3].append(z_ss[6])
+        #
+        # est_dP_bcs[0].append(z_ss[1])
+        # est_dP_bcs[1].append(z_ss[3])
+        # est_dP_bcs[2].append(z_ss[5])
+        # est_dP_bcs[3].append(z_ss[7])
+
+
+    plt.plot(est_q_tr, est_P_man, 'ro')
+    matplotlib.pyplot.title('Mapeamento dos estacionários')
+    matplotlib.pyplot.xlabel('q_tr')
+    matplotlib.pyplot.ylabel('P_man')
     plt.grid()
     plt.show()
-
-# Auto_plot(Lista_zf_reshaped[[1, 3, 5, 7], :],"Pressure Discharge in ESP's",'Time/(h)','Pressure/(bar)', 'b')
-# Auto_plot(Lista_xf_reshaped[[2, 5, 8, 11], :],"Pressure fbhp in ESP's",'Time/(h)','Pressure/(bar)', 'r')
-# Auto_plot(Lista_xf_reshaped[[3, 6, 9, 12], :],'Pressure in Chokes','Time/(h)','Pressure/(bar)', 'g')
-# Auto_plot(Lista_xf_reshaped[[4, 7, 10, 13], :],'Average Flow in the Wells','Time/(h)','Flow Rate/(m^3/h)', 'k')
-# Auto_plot(Lista_xf_reshaped[[1], :],'Flow Through the Transportation Line','Time/(h)','Flow Rate/(m^3/h)', 'y')
-# Auto_plot(Lista_xf_reshaped[[0], :],'Manifold Pressure' ,'Time/(h)','Pressure/(bar)', 'm')
-
-#%% p_intake é desnecessário
-# Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(h)', 'Pressure/(bar)')
-
-
-#%% mapeando modos estacionários
-est_P_man = []
-est_q_tr = []
-est_P_fbhp = []
-est_P_choke = []
-est_q_main = []
-est_P_intake = []
-est_dP_bcs = []
-
-for i in range(len(map_est)):
-    if (i % 2) == 0:
-        if i == 0:
-            est_P_man.append(np.array(map_est[i][0]))
-            est_P_man[0] = est_P_man[0][0][0]
-        
-            est_q_tr.append(np.array(map_est[i][1]))
-            est_q_tr[0] = est_q_tr[0][0][0]
-        
-            est_P_fbhp.append(np.array(map_est[i][2]))
-            est_P_fbhp[0] = est_P_fbhp[0][0][0]
-            est_P_fbhp.append(np.array(map_est[i][5]))
-            est_P_fbhp[1] = est_P_fbhp[1][0][0]
-            est_P_fbhp.append(np.array(map_est[i][8]))
-            est_P_fbhp[2] = est_P_fbhp[2][0][0]
-            est_P_fbhp.append(np.array(map_est[i][11]))
-            est_P_fbhp[3] = est_P_fbhp[3][0][0]
-        
-        
-            est_P_choke.append(np.array(map_est[i][3]))
-            est_P_choke[0] = est_P_choke[0][0][0]
-            est_P_choke.append(np.array(map_est[i][6]))
-            est_P_choke[1] = est_P_choke[1][0][0]
-            est_P_choke.append(np.array(map_est[i][9]))
-            est_P_choke[2] = est_P_choke[2][0][0]
-            est_P_choke.append(np.array(map_est[i][12]))
-            est_P_choke[3] = est_P_choke[3][0][0]
-        
-            est_q_main.append(np.array(map_est[i][4]))
-            est_q_main[0] = est_q_main[0][0][0]
-            est_q_main.append(np.array(map_est[i][7]))
-            est_q_main[1] = est_q_main[1][0][0]
-            est_q_main.append(np.array(map_est[i][10]))
-            est_q_main[2] = est_q_main[2][0][0]
-            est_q_main.append(np.array(map_est[i][13]))
-            est_q_main[3] = est_q_main[3][0][0]
-        
-        else:
-            est_P_man.append(map_est[i][0])
-            est_q_tr.append(map_est[i][1])
-            est_P_fbhp.append(map_est[i][2])
-            est_P_fbhp.append(map_est[i][5])
-            est_P_fbhp.append(map_est[i][8])
-            est_P_fbhp.append(map_est[i][11])
-            est_P_choke.append(map_est[i][3])
-            est_P_choke.append(map_est[i][6])
-            est_P_choke.append(map_est[i][9])
-            est_P_choke.append(map_est[i][12])
-            est_q_main.append(map_est[i][4])
-            est_q_main.append(map_est[i][7])
-            est_q_main.append(map_est[i][10])
-            est_q_main.append(map_est[i][13])
-    else:
-        if i == 1:
-            est_P_intake.append(np.array(map_est[i][0]))
-            est_P_intake[0] = est_P_intake[0][0][0]
-            est_P_intake.append(np.array(map_est[i][2]))
-            est_P_intake[1] = est_P_intake[1][0][0]
-            est_P_intake.append(np.array(map_est[i][4]))
-            est_P_intake[2] = est_P_intake[2][0][0]
-            est_P_intake.append(np.array(map_est[i][6]))
-            est_P_intake[3] = est_P_intake[3][0][0]
-            est_dP_bcs.append(np.array(map_est[i][1]))
-            est_dP_bcs[0] = est_dP_bcs[0][0][0]
-            est_dP_bcs.append(np.array(map_est[i][3]))
-            est_dP_bcs[1] = est_dP_bcs[1][0][0]
-            est_dP_bcs.append(np.array(map_est[i][5]))
-            est_dP_bcs[2] = est_dP_bcs[2][0][0]
-            est_dP_bcs.append(np.array(map_est[i][7]))
-            est_dP_bcs[3] = est_dP_bcs[3][0][0]
-        else:
-            est_P_intake.append(map_est[i][0])
-            est_P_intake.append(map_est[i][2])
-            est_P_intake.append(map_est[i][4])
-            est_P_intake.append(map_est[i][6])
-            est_dP_bcs.append(map_est[i][1])
-            est_dP_bcs.append(map_est[i][3])
-            est_dP_bcs.append(map_est[i][5])
-            est_dP_bcs.append(map_est[i][7])
-
-plt.plot(est_q_tr, est_P_man, 'ro')
-matplotlib.pyplot.title('Mapeamento dos estacionários')
-matplotlib.pyplot.xlabel('q_tr')
-matplotlib.pyplot.ylabel('P_man')
-plt.grid()
-plt.show()
