@@ -228,41 +228,14 @@ F = integrator('F', 'idas', dae, 0, grid)
 
 res = F(x0 = x_ss, z0 = z_ss, p = u0)
 
-#%% funções criadas
+#%% Novidades
+
 def plotar_graficos(n_pert):
-    u0 = [56., 10 ** 5, 50., .5, 50., .5, 50., .5, 50., .5]
+    global res
+    global tfinal
 
-    x0 = [76.52500, 4 * 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85]
-
-    z0 = [30.03625, 239.95338 - 30.03625,
-          30.03625, 239.95338 - 30.03625,
-          30.03625, 239.95338 - 30.03625,
-          30.03625, 239.95338 - 30.03625]
-
-    mani_solver = lambda y: array([float(i) for i in mani.model(0, y[0:-8], y[-8:], u0)])
-
-    y_ss = fsolve(mani_solver, x0 + z0)
-
-    z_ss = y_ss[-8:]
-
-    x_ss = y_ss[0:-8]
-
-    dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
-           'alg': vertcat(*mani_model[-8:])}
-
-    tfinal = 1000  # [s]
-
-    grid = linspace(0, tfinal, 100)
     Lista_xf = []
     Lista_zf = []
-    F = integrator('F', 'idas', dae, 0, grid)
-
-    res = F(x0=x_ss, z0=z_ss, p=u0)
-
     Lista_xf.append(res["xf"])
     Lista_zf.append(res["zf"])
     x0 = Lista_xf[-1][:, -1]
@@ -304,7 +277,7 @@ def plotar_graficos(n_pert):
         Lista_xf_reshaped = np.hstack((Lista_xf_reshaped, np.array(res["xf"])))
         Lista_zf_reshaped = np.hstack((Lista_zf_reshaped, np.array(res["zf"])))
 
-        # #%% Plotted Graphs
+        #Plotted Graphs
         rcParams['axes.formatter.useoffset'] = False
         grid = linspace(0, tfinal, 100 * grid_cont)
 
@@ -326,12 +299,15 @@ def plotar_graficos(n_pert):
     Auto_plot(Lista_xf_reshaped[[1], :], 'Flow Through the Transportation Line', 'Time/(h)', 'Flow Rate/(m^3/h)','y')
     Auto_plot(Lista_xf_reshaped[[0], :], 'Manifold Pressure', 'Time/(h)', 'Pressure/(bar)', 'm')
 
-    #%% p_intake é desnecessário
+    #p_intake é desnecessário
     # Auto_plot(Lista_zf_reshaped[[0, 2, 4, 6], :],"Pressure Intake in ESP's", 'Time/(h)', 'Pressure/(bar)')
 
-def mapping_stationary(n_pert):
 
-    # %% Evaluation of steady-state
+
+
+ # %% mapeando estacionários:
+def mapping_stationary(n_pert, qual):
+
     valve_open1 = np.random.uniform(.42, 1, n_pert)
     valve_open2 = np.random.uniform(.42, 1, n_pert)
     valve_open3 = np.random.uniform(.42, 1, n_pert)
@@ -343,62 +319,84 @@ def mapping_stationary(n_pert):
     booster_freq = np.random.randint(35., 65., n_pert)
     p_topo = np.random.uniform(8, 12, n_pert)
 
+    global x0
+    global z0
 
-
-    x0 = [76.52500, 4 * 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85,
-          64.11666, 120.91641, 85]
-
-    z0 = [30.03625, 239.95338-30.03625,
-          30.03625, 239.95338-30.03625,
-          30.03625, 239.95338-30.03625,
-          30.03625, 239.95338-30.03625]
     est_P_man = []
     est_q_tr = []
-    est_P_fbhp = [[]*4]
-    est_P_choke = []*4
-    est_q_main = []*4
-    est_P_intake = []*4
-    est_dP_bcs = []*4
-    for i in range(n_pert):
+    est_P_fbhp = []
+    est_P_choke = []
+    est_q_main = []
+    est_P_intake = []
+    est_dP_bcs = []
+    i = 0
+    new_pert = n_pert
+    while len(est_P_man) < n_pert:
         u0 = [booster_freq[i], p_topo[i] ** 5, bcs_freq1[i], valve_open1[i], bcs_freq2[i], valve_open2[i], bcs_freq3[i], valve_open3[i], bcs_freq4[i],valve_open4[i]]
         mani_solver = lambda y: array([float(i) for i in mani.model(0, y[0:-8], y[-8:], u0)])
         y_ss = fsolve(mani_solver, x0+z0)
         z_ss = y_ss[-8:]
         x_ss = y_ss[0:-8]
-        est_P_man.append(x_ss[0])
-        est_q_tr.append(x_ss[1])
-        # est_P_fbhp[0][0].append(x_ss[2])
-        # est_P_fbhp[0][1].append(x_ss[5])
-        # est_P_fbhp[0][2].append(x_ss[8])
-        # est_P_fbhp[0][3].append(x_ss[11])
-        #
-        # est_P_choke[0].append(x_ss[3])
-        # est_P_choke[1].append(x_ss[6])
-        # est_P_choke[2].append(x_ss[9])
-        # est_P_choke[3].append(x_ss[12])
-        #
-        # est_q_main[0].append(x_ss[4])
-        # est_q_main[1].append(x_ss[7])
-        # est_q_main[2].append(x_ss[10])
-        # est_q_main[3].append(x_ss[13])
-        #
-        # est_P_intake[0].append(z_ss[0])
-        # est_P_intake[1].append(z_ss[2])
-        # est_P_intake[2].append(z_ss[4])
-        # est_P_intake[3].append(z_ss[6])
-        #
-        # est_dP_bcs[0].append(z_ss[1])
-        # est_dP_bcs[1].append(z_ss[3])
-        # est_dP_bcs[2].append(z_ss[5])
-        # est_dP_bcs[3].append(z_ss[7])
 
+        # Adicionando na lista se for positivo
+        if qual == 1:
+            if x_ss[0] > 0:
+                est_P_man.append(x_ss[0])
+                est_q_tr.append(x_ss[1])
 
+        if qual == 2:
+            if x_ss[2] > 0:
+                est_P_fbhp.append(x_ss[2])
+            if x_ss[5] > 0:
+                est_P_fbhp.append(x_ss[5])
+            if x_ss[8] > 0:
+                est_P_fbhp.append(x_ss[8])
+            if x_ss[11] > 0:
+                est_P_fbhp.append(x_ss[11])
+            if x_ss[4] > 0:
+                est_q_main.append(x_ss[4])
+            if x_ss[7] > 0:
+                est_q_main.append(x_ss[7])
+            if x_ss[10] > 0:
+                est_q_main.append(x_ss[10])
+            if x_ss[13] > 0:
+                est_q_main.append(x_ss[13])
+
+        # est_P_choke.append(x_ss[3])
+        # est_P_choke.append(x_ss[6])
+        # est_P_choke.append(x_ss[9])
+        # est_P_choke.append(x_ss[12])
+        #
+        # est_P_intake.append(z_ss[0])
+        # est_P_intake.append(z_ss[2])
+        # est_P_intake.append(z_ss[4])
+        # est_P_intake.append(z_ss[6])
+        #
+        # est_dP_bcs.append(z_ss[1])
+        # est_dP_bcs.append(z_ss[3])
+        # est_dP_bcs.append(z_ss[5])
+        # est_dP_bcs.append(z_ss[7])
+        i += 1
+        if i == n_pert or i == new_pert:
+            i = 0
+            new_pert = n_pert - len(est_P_man)
+            valve_open1 = np.random.uniform(.42, 1, new_pert)
+            valve_open2 = np.random.uniform(.42, 1, new_pert)
+            valve_open3 = np.random.uniform(.42, 1,  new_pert)
+            valve_open4 = np.random.uniform(.42, 1,  new_pert)
+            bcs_freq1 = np.random.randint(35., 65.,  new_pert)
+            bcs_freq2 = np.random.randint(35., 65.,  new_pert)
+            bcs_freq3 = np.random.randint(35., 65.,  new_pert)
+            bcs_freq4 = np.random.randint(35., 65.,  new_pert)
+            booster_freq = np.random.randint(35., 65.,  new_pert)
+            p_topo = np.random.uniform(8, 12,  new_pert)
+            
+    print(len(est_P_man))
+    # Plotando o Gráfico
     plt.plot(est_q_tr, est_P_man, 'ro')
     matplotlib.pyplot.title('Mapeamento dos estacionários')
     matplotlib.pyplot.xlabel('q_tr')
     matplotlib.pyplot.ylabel('P_man')
     plt.grid()
     plt.show()
+
