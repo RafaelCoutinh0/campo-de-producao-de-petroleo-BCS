@@ -391,12 +391,13 @@ def mapping_stationary(n_pert, qual):
             booster_freq = np.random.randint(35., 65.,  new_pert)
             p_topo = np.random.uniform(8, 12,  new_pert)
             
-    print(len(est_P_man))
-    # Plotando o Gráfico
-    plt.plot(est_q_tr, est_P_man, 'ro')
-    matplotlib.pyplot.title('Mapeamento dos estacionários')
-    matplotlib.pyplot.xlabel('q_tr')
-    matplotlib.pyplot.ylabel('P_man')
-    plt.grid()
-    plt.show()
 
+    # Plotando o Gráfico
+    if qual == 1:
+        print(len(est_P_man))
+        plt.plot(est_q_tr, est_P_man, 'ro')
+        matplotlib.pyplot.title('Mapeamento dos estacionários')
+        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
+        matplotlib.pyplot.ylabel('P_man/(bar)')
+        plt.grid()
+        plt.show()
