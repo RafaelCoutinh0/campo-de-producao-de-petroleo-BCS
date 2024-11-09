@@ -220,7 +220,7 @@ x_ss = y_ss[0:-8]
 dae = {'x': vertcat(*x), 'z': vertcat(*z), 'p': vertcat(*u), 'ode': vertcat(*mani_model[0:-8]),
        'alg': vertcat(*mani_model[-8:])}
 
-tfinal = 1000 # [s]
+tfinal = 1000 # [h]
 
 grid = linspace(0, tfinal, 100)
 
@@ -253,10 +253,10 @@ def plotar_graficos(n_pert):
     valve_open2 = np.random.uniform(.42, 1, n_pert)
     valve_open3 = np.random.uniform(.42, 1, n_pert)
     valve_open4 = np.random.uniform(.42, 1, n_pert)
-    bcs_freq1 = np.random.randint(35., 65., n_pert)
-    bcs_freq2 = np.random.randint(35., 65., n_pert)
-    bcs_freq3 = np.random.randint(35., 65., n_pert)
-    bcs_freq4 = np.random.randint(35., 65., n_pert)
+    # bcs_freq1 = np.random.randint(35., 65., n_pert)
+    # bcs_freq2 = np.random.randint(35., 65., n_pert)
+    # bcs_freq3 = np.random.randint(35., 65., n_pert)
+    # bcs_freq4 = np.random.randint(35., 65., n_pert)
     booster_freq = np.random.randint(35., 65., n_pert)
     p_topo = np.random.uniform(8, 12, n_pert)
 
