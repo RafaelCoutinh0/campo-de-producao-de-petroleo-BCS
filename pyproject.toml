@@ -1,0 +1,11 @@
+[project]
+name = "campo-de-producao-de-petroleo-bcs"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "casadi>=3.6.7",
+    "matplotlib>=3.9.3",
+    "numpy>=2.1.3",
+]
