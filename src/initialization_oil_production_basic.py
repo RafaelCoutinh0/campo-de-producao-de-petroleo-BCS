@@ -353,7 +353,7 @@ def mapping_stationary(n_pert, qual):
                 est_P_man.append(x_ss[0])
                 est_q_tr.append(x_ss[1])
                 contador += 1
-                print(f'{contador}/{n_pert}')
+                print(f'--{contador}/{n_pert}--')
 
         if qual == 2:
             if x_ss[2] > 0:
@@ -438,6 +438,8 @@ def mapping_stationary(n_pert, qual):
                 est_q_tr.append(x_ss[1])
                 contador += 1
                 print(f'--{contador + (n_pert//2)}/{n_pert}--')
+
+
 
         if qual == 2:
             if x_ss[2] > 0:
@@ -578,12 +580,13 @@ def mapping_stationary(n_pert, qual):
 
     # Plotando o Gráfico
     if qual == 1:
-        plt.plot(est_q_tr, est_P_man, 'ro')
-        matplotlib.pyplot.title('Mapeamento dos estacionários')
-        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
-        matplotlib.pyplot.ylabel('P_man/(bar)')
+        plt.figure(dpi=250)  # Define o DPI como 150
+        plt.plot(est_q_tr, est_P_man, 'r.', markersize=4)  # Aqui você ajusta o tamanho com markersize
+        plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$P_{man}$ /bar')
         plt.grid()
         plt.show()
+
 
     if qual == 3:
         a_x =[ 28.55 - 20.77, 106.4- 72.68]
@@ -606,7 +609,7 @@ def mapping_stationary(n_pert, qual):
 
         plt.plot(est_q_main3, est_dP_bcs3, 'ro')
         matplotlib.pyplot.title('Mapeamento dos estacionários dp, qman')
-        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
+        matplotlib.pyplot.xlabel('$q_{tr}$/(m^3h^{-1})')
         matplotlib.pyplot.ylabel('P_man/(bar)')
         plt.grid()
         plt.show()
