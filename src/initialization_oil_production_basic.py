@@ -257,7 +257,7 @@ def plotar_graficos(n_pert):
     # bcs_freq2 = np.random.randint(35., 65., n_pert)
     # bcs_freq3 = np.random.randint(35., 65., n_pert)
     # bcs_freq4 = np.random.randint(35., 65., n_pert)
-    booster_freq = np.random.randint(35., 65., n_pert)
+    booster_freq = np.random.uniform(35., 65., n_pert)
     p_topo = np.random.uniform(8, 12, n_pert)
 
     grid_cont = 1
@@ -312,25 +312,42 @@ def mapping_stationary(n_pert, qual):
     valve_open2 = np.random.uniform(.42, 1, n_pert//2)
     valve_open3 = np.random.uniform(.42, 1, n_pert//2)
     valve_open4 = np.random.uniform(.42, 1, n_pert//2)
-    bcs_freq1 = np.random.randint(35., 65., n_pert//2)
-    bcs_freq2 = np.random.randint(35., 65., n_pert//2)
-    bcs_freq3 = np.random.randint(35., 65., n_pert//2)
-    bcs_freq4 = np.random.randint(35., 65., n_pert//2)
-    booster_freq = np.random.randint(35., 65., n_pert//2)
+    bcs_freq1 = np.random.uniform(35., 65., n_pert//2)
+    bcs_freq2 = np.random.uniform(35., 65., n_pert//2)
+    bcs_freq3 = np.random.uniform(35., 65., n_pert//2)
+    bcs_freq4 = np.random.uniform(35., 65., n_pert//2)
+    booster_freq = np.random.uniform(35., 65., n_pert//2)
     p_topo = np.random.uniform(8, 12, n_pert//2)
+
+
+    valves_rand = [valve_open1, valve_open2, valve_open3, valve_open4]
+    bcs_rand = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+    booster_rand = booster_freq
+    p_topo_rand = p_topo
 
     global x0
     global z0
 
     est_P_man = []
+    est_P0_man = []
     est_q_tr = []
-    est_P_fbhp = []
-    est_P_choke = []
+    est_q0_tr = []
+    est_P_fbhp1 = []
+    est_P_fbhp2 = []
+    est_P_fbhp3= []
+    est_P_fbhp4 = []
+    est_P_choke1 = []
+    est_P_choke2 = []
+    est_P_choke3 = []
+    est_P_choke4 = []
     est_q_main1 = []
     est_q_main2 = []
     est_q_main3 = []
     est_q_main4 = []
-    est_P_intake = []
+    est_P_intake1 = []
+    est_P_intake2 = []
+    est_P_intake3 = []
+    est_P_intake4 = []
     est_dP_bcs1 = []
     est_dP_bcs2 = []
     est_dP_bcs3 = []
@@ -354,44 +371,29 @@ def mapping_stationary(n_pert, qual):
                 est_q_tr.append(x_ss[1])
                 contador += 1
                 print(f'--{contador}/{n_pert}--')
-
-        if qual == 2:
-            if x_ss[2] > 0:
-                est_P_fbhp.append(x_ss[2])
-            if x_ss[5] > 0:
-                est_P_fbhp.append(x_ss[5])
-            if x_ss[8] > 0:
-                est_P_fbhp.append(x_ss[8])
-            if x_ss[11] > 0:
-                est_P_fbhp.append(x_ss[11])
-            if x_ss[4] > 0:
-                est_q_main1.append(x_ss[4])
-            if x_ss[7] > 0:
-                est_q_main2.append(x_ss[7])
-            if x_ss[10] > 0:
-                est_q_main3.append(x_ss[10])
-            if x_ss[13] > 0:
-                est_q_main4.append(x_ss[13])
-        if qual == 3:
-            est_dP_bcs1.append(z_ss[1])
-            est_dP_bcs2.append(z_ss[3])
-            est_dP_bcs3.append(z_ss[5])
-            est_dP_bcs4.append(z_ss[7])
+            else:
+                est_P0_man.append(x_ss[0])
+                est_q0_tr.append(x_ss[1])
+            est_P_fbhp1.append(x_ss[2])
+            est_P_fbhp2.append(x_ss[5])
+            est_P_fbhp3.append(x_ss[8])
+            est_P_fbhp4.append(x_ss[11])
+            est_P_choke1.append(x_ss[3])
+            est_P_choke2.append(x_ss[6])
+            est_P_choke3.append(x_ss[9])
+            est_P_choke4.append(x_ss[12])
             est_q_main1.append(x_ss[4])
             est_q_main2.append(x_ss[7])
             est_q_main3.append(x_ss[10])
             est_q_main4.append(x_ss[13])
-
-        # est_P_choke.append(x_ss[3])
-        # est_P_choke.append(x_ss[6])
-        # est_P_choke.append(x_ss[9])
-        # est_P_choke.append(x_ss[12])
-        #
-        # est_P_intake.append(z_ss[0])
-        # est_P_intake.append(z_ss[2])
-        # est_P_intake.append(z_ss[4])
-        # est_P_intake.append(z_ss[6])
-        #
+            est_P_intake1.append(z_ss[0])
+            est_P_intake2.append(z_ss[2])
+            est_P_intake3.append(z_ss[4])
+            est_P_intake4.append(z_ss[6])
+            est_dP_bcs1.append(z_ss[1])
+            est_dP_bcs2.append(z_ss[3])
+            est_dP_bcs3.append(z_ss[5])
+            est_dP_bcs4.append(z_ss[7])
 
         if i == n_pert//2 or i == new_pert:
             i = 0
@@ -400,12 +402,19 @@ def mapping_stationary(n_pert, qual):
             valve_open2 = np.random.uniform(.42, 1, new_pert)
             valve_open3 = np.random.uniform(.42, 1,  new_pert)
             valve_open4 = np.random.uniform(.42, 1,  new_pert)
-            bcs_freq1 = np.random.randint(35., 65.,  new_pert)
-            bcs_freq2 = np.random.randint(35., 65.,  new_pert)
-            bcs_freq3 = np.random.randint(35., 65.,  new_pert)
-            bcs_freq4 = np.random.randint(35., 65.,  new_pert)
-            booster_freq = np.random.randint(35., 65.,  new_pert)
+            bcs_freq1 = np.random.uniform(35., 65.,  new_pert)
+            bcs_freq2 = np.random.uniform(35., 65.,  new_pert)
+            bcs_freq3 = np.random.uniform(35., 65.,  new_pert)
+            bcs_freq4 = np.random.uniform(35., 65.,  new_pert)
+            booster_freq = np.random.uniform(35., 65.,  new_pert)
             p_topo = np.random.uniform(8, 12,  new_pert)
+
+            valves = [valve_open1, valve_open2, valve_open3, valve_open4]
+            valves_rand = np.hstack((valves_rand, valves))
+            bcs = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+            bcs_rand = np.hstack((bcs_rand, bcs))
+            booster_rand = np.hstack((booster_rand, booster_freq))
+            p_topo_rand = np.hstack((p_topo_rand, p_topo))
 
 
     # novo intervalo 1
@@ -413,12 +422,19 @@ def mapping_stationary(n_pert, qual):
     valve_open2 = np.random.uniform(.3, .7, n_pert // 4)
     valve_open3 = np.random.uniform(.3, .7, n_pert // 4)
     valve_open4 = np.random.uniform(.3, .7, n_pert // 4)
-    bcs_freq1 = np.random.randint(35., 40., n_pert // 4)
-    bcs_freq2 = np.random.randint(35., 40., n_pert // 4)
-    bcs_freq3 = np.random.randint(35., 40., n_pert // 4)
-    bcs_freq4 = np.random.randint(35., 40., n_pert // 4)
-    booster_freq = np.random.randint(35., 65., n_pert // 4)
+    bcs_freq1 = np.random.uniform(35., 40., n_pert // 4)
+    bcs_freq2 = np.random.uniform(35., 40., n_pert // 4)
+    bcs_freq3 = np.random.uniform(35., 40., n_pert // 4)
+    bcs_freq4 = np.random.uniform(35., 40., n_pert // 4)
+    booster_freq = np.random.uniform(35., 65., n_pert // 4)
     p_topo = np.random.uniform(8, 12, n_pert // 4)
+
+    valves = [valve_open1, valve_open2, valve_open3, valve_open4]
+    valves_rand = np.hstack((valves_rand, valves))
+    bcs = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+    bcs_rand = np.hstack((bcs_rand, bcs))
+    booster_rand = np.hstack((booster_rand, booster_freq))
+    p_topo_rand = np.hstack((p_topo_rand, p_topo))
 
     i = 0
     contador = 0
@@ -439,45 +455,30 @@ def mapping_stationary(n_pert, qual):
                 contador += 1
                 print(f'--{contador + (n_pert//2)}/{n_pert}--')
 
+            else:
+                est_P0_man.append(x_ss[0])
+                est_q0_tr.append(x_ss[1])
 
-
-        if qual == 2:
-            if x_ss[2] > 0:
-                est_P_fbhp.append(x_ss[2])
-            if x_ss[5] > 0:
-                est_P_fbhp.append(x_ss[5])
-            if x_ss[8] > 0:
-                est_P_fbhp.append(x_ss[8])
-            if x_ss[11] > 0:
-                est_P_fbhp.append(x_ss[11])
-            if x_ss[4] > 0:
-                est_q_main1.append(x_ss[4])
-            if x_ss[7] > 0:
-                est_q_main2.append(x_ss[7])
-            if x_ss[10] > 0:
-                est_q_main3.append(x_ss[10])
-            if x_ss[13] > 0:
-                est_q_main4.append(x_ss[13])
-        if qual == 3:
-            est_dP_bcs1.append(z_ss[1])
-            est_dP_bcs2.append(z_ss[3])
-            est_dP_bcs3.append(z_ss[5])
-            est_dP_bcs4.append(z_ss[7])
+            est_P_fbhp1.append(x_ss[2])
+            est_P_fbhp2.append(x_ss[5])
+            est_P_fbhp3.append(x_ss[8])
+            est_P_fbhp4.append(x_ss[11])
+            est_P_choke1.append(x_ss[3])
+            est_P_choke2.append(x_ss[6])
+            est_P_choke3.append(x_ss[9])
+            est_P_choke4.append(x_ss[12])
             est_q_main1.append(x_ss[4])
             est_q_main2.append(x_ss[7])
             est_q_main3.append(x_ss[10])
             est_q_main4.append(x_ss[13])
-
-        # est_P_choke.append(x_ss[3])
-        # est_P_choke.append(x_ss[6])
-        # est_P_choke.append(x_ss[9])
-        # est_P_choke.append(x_ss[12])
-        #
-        # est_P_intake.append(z_ss[0])
-        # est_P_intake.append(z_ss[2])
-        # est_P_intake.append(z_ss[4])
-        # est_P_intake.append(z_ss[6])
-        #
+            est_P_intake1.append(z_ss[0])
+            est_P_intake2.append(z_ss[2])
+            est_P_intake3.append(z_ss[4])
+            est_P_intake4.append(z_ss[6])
+            est_dP_bcs1.append(z_ss[1])
+            est_dP_bcs2.append(z_ss[3])
+            est_dP_bcs3.append(z_ss[5])
+            est_dP_bcs4.append(z_ss[7])
 
         if i == n_pert // 4 or i == new_pert:
             i = 0
@@ -486,24 +487,38 @@ def mapping_stationary(n_pert, qual):
             valve_open2 = np.random.uniform(.3, 1, new_pert)
             valve_open3 = np.random.uniform(.3, 1, new_pert)
             valve_open4 = np.random.uniform(.3, 1, new_pert)
-            bcs_freq1 = np.random.randint(35., 40., new_pert)
-            bcs_freq2 = np.random.randint(35., 40., new_pert)
-            bcs_freq3 = np.random.randint(35., 40., new_pert)
-            bcs_freq4 = np.random.randint(35., 40., new_pert)
-            booster_freq = np.random.randint(35., 65., new_pert)
+            bcs_freq1 = np.random.uniform(35., 40., new_pert)
+            bcs_freq2 = np.random.uniform(35., 40., new_pert)
+            bcs_freq3 = np.random.uniform(35., 40., new_pert)
+            bcs_freq4 = np.random.uniform(35., 40., new_pert)
+            booster_freq = np.random.uniform(35., 65., new_pert)
             p_topo = np.random.uniform(8, 12, new_pert)
+
+            valves = [valve_open1, valve_open2, valve_open3, valve_open4]
+            valves_rand = np.hstack((valves_rand, valves))
+            bcs = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+            bcs_rand = np.hstack((bcs_rand, bcs))
+            booster_rand = np.hstack((booster_rand, booster_freq))
+            p_topo_rand = np.hstack((p_topo_rand, p_topo))
 
     # novo intervalo 2
     valve_open1 = np.random.uniform(.4, 1, n_pert // 4)
     valve_open2 = np.random.uniform(.4, 1, n_pert // 4)
     valve_open3 = np.random.uniform(.4, 1, n_pert // 4)
     valve_open4 = np.random.uniform(.4, 1, n_pert // 4)
-    bcs_freq1 = np.random.randint(60., 65., n_pert // 4)
-    bcs_freq2 = np.random.randint(60., 65., n_pert // 4)
-    bcs_freq3 = np.random.randint(60., 65., n_pert // 4)
-    bcs_freq4 = np.random.randint(60., 65., n_pert // 4)
-    booster_freq = np.random.randint(35., 65., n_pert // 4)
+    bcs_freq1 = np.random.uniform(60., 65., n_pert // 4)
+    bcs_freq2 = np.random.uniform(60., 65., n_pert // 4)
+    bcs_freq3 = np.random.uniform(60., 65., n_pert // 4)
+    bcs_freq4 = np.random.uniform(60., 65., n_pert // 4)
+    booster_freq = np.random.uniform(35., 65., n_pert // 4)
     p_topo = np.random.uniform(8, 12, n_pert // 4)
+
+    valves = [valve_open1, valve_open2, valve_open3, valve_open4]
+    valves_rand = np.hstack((valves_rand, valves))
+    bcs = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+    bcs_rand = np.hstack((bcs_rand, bcs))
+    booster_rand = np.hstack((booster_rand, booster_freq))
+    p_topo_rand = np.hstack((p_topo_rand, p_topo))
 
     i = 0
     contador = 0
@@ -525,43 +540,32 @@ def mapping_stationary(n_pert, qual):
                 contador += 1
                 print(f'--{contador + (n_pert//2 + n_pert//4)}/{n_pert}--')
 
-        if qual == 2:
-            if x_ss[2] > 0:
-                est_P_fbhp.append(x_ss[2])
-            if x_ss[5] > 0:
-                est_P_fbhp.append(x_ss[5])
-            if x_ss[8] > 0:
-                est_P_fbhp.append(x_ss[8])
-            if x_ss[11] > 0:
-                est_P_fbhp.append(x_ss[11])
-            if x_ss[4] > 0:
-                est_q_main1.append(x_ss[4])
-            if x_ss[7] > 0:
-                est_q_main2.append(x_ss[7])
-            if x_ss[10] > 0:
-                est_q_main3.append(x_ss[10])
-            if x_ss[13] > 0:
-                est_q_main4.append(x_ss[13])
-        if qual == 3:
-            est_dP_bcs1.append(z_ss[1])
-            est_dP_bcs2.append(z_ss[3])
-            est_dP_bcs3.append(z_ss[5])
-            est_dP_bcs4.append(z_ss[7])
+            else:
+                est_P0_man.append(x_ss[0])
+                est_q0_tr.append(x_ss[1])
+
+            est_P_fbhp1.append(x_ss[2])
+            est_P_fbhp2.append(x_ss[5])
+            est_P_fbhp3.append(x_ss[8])
+            est_P_fbhp4.append(x_ss[11])
+            est_P_choke1.append(x_ss[3])
+            est_P_choke2.append(x_ss[6])
+            est_P_choke3.append(x_ss[9])
+            est_P_choke4.append(x_ss[12])
             est_q_main1.append(x_ss[4])
             est_q_main2.append(x_ss[7])
             est_q_main3.append(x_ss[10])
             est_q_main4.append(x_ss[13])
+            est_P_intake1.append(z_ss[0])
+            est_P_intake2.append(z_ss[2])
+            est_P_intake3.append(z_ss[4])
+            est_P_intake4.append(z_ss[6])
+            est_dP_bcs1.append(z_ss[1])
+            est_dP_bcs2.append(z_ss[3])
+            est_dP_bcs3.append(z_ss[5])
+            est_dP_bcs4.append(z_ss[7])
 
-        # est_P_choke.append(x_ss[3])
-        # est_P_choke.append(x_ss[6])
-        # est_P_choke.append(x_ss[9])
-        # est_P_choke.append(x_ss[12])
-        #
-        # est_P_intake.append(z_ss[0])
-        # est_P_intake.append(z_ss[2])
-        # est_P_intake.append(z_ss[4])
-        # est_P_intake.append(z_ss[6])
-        #
+
 
         if i == n_pert // 4 or i == new_pert:
             i = 0
@@ -570,54 +574,106 @@ def mapping_stationary(n_pert, qual):
             valve_open2 = np.random.uniform(.4, 1, new_pert)
             valve_open3 = np.random.uniform(.4, 1, new_pert)
             valve_open4 = np.random.uniform(.4, 1, new_pert)
-            bcs_freq1 = np.random.randint(60., 65., new_pert)
-            bcs_freq2 = np.random.randint(60., 65., new_pert)
-            bcs_freq3 = np.random.randint(60., 65., new_pert)
-            bcs_freq4 = np.random.randint(60., 65., new_pert)
-            booster_freq = np.random.randint(35., 65., new_pert)
+            bcs_freq1 = np.random.uniform(60., 65., new_pert)
+            bcs_freq2 = np.random.uniform(60., 65., new_pert)
+            bcs_freq3 = np.random.uniform(60., 65., new_pert)
+            bcs_freq4 = np.random.uniform(60., 65., new_pert)
+            booster_freq = np.random.uniform(35., 65., new_pert)
             p_topo = np.random.uniform(8, 12, new_pert)
+
+            valves = [valve_open1, valve_open2, valve_open3, valve_open4]
+            valves_rand = np.hstack((valves_rand, valves))
+            bcs = [bcs_freq1, bcs_freq2, bcs_freq3, bcs_freq4]
+            bcs_rand = np.hstack((bcs_rand, bcs))
+            booster_rand = np.hstack((booster_rand, booster_freq))
+            p_topo_rand = np.hstack((p_topo_rand, p_topo))
 
 
     # Plotando o Gráfico
     if qual == 1:
         plt.figure(dpi=250)  # Define o DPI como 150
-        plt.plot(est_q_tr, est_P_man, 'r.', markersize=4)  # Aqui você ajusta o tamanho com markersize
+        plt.plot(est_q_tr, est_P_man, 'r.', markersize=6)  # Aqui você ajusta o tamanho com markersize
         plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
         plt.ylabel('$P_{man}$ /bar')
         plt.grid()
         plt.show()
 
-
-    if qual == 3:
-        a_x =[ 28.55 - 20.77, 106.4- 72.68]
-        a_y = [206.6 - 58.07, 145.6 - 27.91]
-        b_x = []
-
-        plt.plot(est_q_main1, est_dP_bcs1, 'ro')
-        matplotlib.pyplot.title('Mapeamento dos estacionários dp, qman')
-        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
-        matplotlib.pyplot.ylabel('P_man/(bar)')
+        plt.figure(dpi=250)  # Define o DPI como 150
+        plt.plot(est_q0_tr, est_P0_man, 'r.', markersize=6)  # Aqui você ajusta o tamanho com markersize
+        plt.xlabel('$q0_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$P0_{man}$ /bar')
         plt.grid()
         plt.show()
 
-        plt.plot(est_q_main2, est_dP_bcs2, 'ro')
-        matplotlib.pyplot.title('Mapeamento dos estacionários dp, qman')
-        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
-        matplotlib.pyplot.ylabel('P_man/(bar)')
-        plt.grid()
-        plt.show()
+        dados = {
+            'P_man': est_P_man,
+            'P0_man': est_P0_man,
+            'q_tr': est_q_tr,
+            'q0_tr': est_q0_tr,
+            'valves': valves_rand.tolist(),
+            'bcs_freq': bcs_rand.tolist(),
+            'booster_freq': booster_rand.tolist(),
+            'p_topo': p_topo_rand.tolist(),
+            'P_fbhp1': est_P_fbhp1,
+            'P_fbhp2': est_P_fbhp2,
+            'P_fbhp3': est_P_fbhp3,
+            'P_fbhp4': est_P_fbhp4,
+            'P_choke1': est_P_choke1,
+            'P_choke2': est_P_choke2,
+            'P_choke3': est_P_choke3,
+            'P_choke4': est_P_choke4,
+            'q_main1': est_q_main1,
+            'q_main2': est_q_main2,
+            'q_main3': est_q_main3,
+            'q_main4': est_q_main4,
+            'P_intake1': est_P_intake1,
+            'P_intake2': est_P_intake2,
+            'P_intake3': est_P_intake3,
+            'P_intake4': est_P_intake4,
+            'dP_bcs1': est_dP_bcs1,
+            'dP_bcs2': est_dP_bcs2,
+            'dP_bcs3': est_dP_bcs3,
+            'dP_bcs4': est_dP_bcs4,
+            'z0': z0,
+            'x0': x0
+        }
+        return dados
 
-        plt.plot(est_q_main3, est_dP_bcs3, 'ro')
-        matplotlib.pyplot.title('Mapeamento dos estacionários dp, qman')
-        matplotlib.pyplot.xlabel('$q_{tr}$/(m^3h^{-1})')
-        matplotlib.pyplot.ylabel('P_man/(bar)')
-        plt.grid()
-        plt.show()
+dados_novos = mapping_stationary(100,1)
+filename = 'dados.pkl'
+import pickle
+with open(filename, "wb") as f:
+    pickle.dump(dados_novos, f)
 
-        plt.plot(est_q_main4, est_dP_bcs4, 'ro')
-        matplotlib.pyplot.title('Mapeamento dos estacionários dp, qman')
-        matplotlib.pyplot.xlabel('q_tr/(m^3/h)')
-        matplotlib.pyplot.ylabel('P_man/(bar)')
-        plt.grid()
-        plt.show()
+# import pickle
+#
+# import os
+# filename = 'dados.pkl'
+# if os.path.getsize(filename) > 0:
+#     with open(filename, "rb") as f:
+#         unpickler = pickle.Unpickler(f)
+#         dados_anteriores = unpickler.load()
+#
+# dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
+#
+# filename = 'dados.pkl'
+# import pickle
+# with open(filename, "wb") as f:
+#     pickle.dump(dados_unidos, f)
+#
+# if os.path.getsize(filename) > 0:
+#     with open(filename, "rb") as f:
+#         unpickler = pickle.Unpickler(f)
+#         dados_teste = unpickler.load()
+
+
+
+
+
+
+
+
+
+
+
 
