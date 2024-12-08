@@ -422,10 +422,10 @@ def mapping_stationary(n_pert, qual):
     valve_open2 = np.random.uniform(.3, .7, n_pert // 4)
     valve_open3 = np.random.uniform(.3, .7, n_pert // 4)
     valve_open4 = np.random.uniform(.3, .7, n_pert // 4)
-    bcs_freq1 = np.random.uniform(35., 40., n_pert // 4)
-    bcs_freq2 = np.random.uniform(35., 40., n_pert // 4)
-    bcs_freq3 = np.random.uniform(35., 40., n_pert // 4)
-    bcs_freq4 = np.random.uniform(35., 40., n_pert // 4)
+    bcs_freq1 = np.random.uniform(35., 45., n_pert // 4)
+    bcs_freq2 = np.random.uniform(35., 45., n_pert // 4)
+    bcs_freq3 = np.random.uniform(35., 45., n_pert // 4)
+    bcs_freq4 = np.random.uniform(35., 45., n_pert // 4)
     booster_freq = np.random.uniform(35., 65., n_pert // 4)
     p_topo = np.random.uniform(8, 12, n_pert // 4)
 
@@ -487,10 +487,10 @@ def mapping_stationary(n_pert, qual):
             valve_open2 = np.random.uniform(.3, 1, new_pert)
             valve_open3 = np.random.uniform(.3, 1, new_pert)
             valve_open4 = np.random.uniform(.3, 1, new_pert)
-            bcs_freq1 = np.random.uniform(35., 40., new_pert)
-            bcs_freq2 = np.random.uniform(35., 40., new_pert)
-            bcs_freq3 = np.random.uniform(35., 40., new_pert)
-            bcs_freq4 = np.random.uniform(35., 40., new_pert)
+            bcs_freq1 = np.random.uniform(35., 45., new_pert)
+            bcs_freq2 = np.random.uniform(35., 45., new_pert)
+            bcs_freq3 = np.random.uniform(35., 45., new_pert)
+            bcs_freq4 = np.random.uniform(35., 45., new_pert)
             booster_freq = np.random.uniform(35., 65., new_pert)
             p_topo = np.random.uniform(8, 12, new_pert)
 
@@ -506,10 +506,10 @@ def mapping_stationary(n_pert, qual):
     valve_open2 = np.random.uniform(.4, 1, n_pert // 4)
     valve_open3 = np.random.uniform(.4, 1, n_pert // 4)
     valve_open4 = np.random.uniform(.4, 1, n_pert // 4)
-    bcs_freq1 = np.random.uniform(60., 65., n_pert // 4)
-    bcs_freq2 = np.random.uniform(60., 65., n_pert // 4)
-    bcs_freq3 = np.random.uniform(60., 65., n_pert // 4)
-    bcs_freq4 = np.random.uniform(60., 65., n_pert // 4)
+    bcs_freq1 = np.random.uniform(55., 65., n_pert // 4)
+    bcs_freq2 = np.random.uniform(55., 65., n_pert // 4)
+    bcs_freq3 = np.random.uniform(55., 65., n_pert // 4)
+    bcs_freq4 = np.random.uniform(55., 65., n_pert // 4)
     booster_freq = np.random.uniform(35., 65., n_pert // 4)
     p_topo = np.random.uniform(8, 12, n_pert // 4)
 
@@ -574,10 +574,10 @@ def mapping_stationary(n_pert, qual):
             valve_open2 = np.random.uniform(.4, 1, new_pert)
             valve_open3 = np.random.uniform(.4, 1, new_pert)
             valve_open4 = np.random.uniform(.4, 1, new_pert)
-            bcs_freq1 = np.random.uniform(60., 65., new_pert)
-            bcs_freq2 = np.random.uniform(60., 65., new_pert)
-            bcs_freq3 = np.random.uniform(60., 65., new_pert)
-            bcs_freq4 = np.random.uniform(60., 65., new_pert)
+            bcs_freq1 = np.random.uniform(55., 65., new_pert)
+            bcs_freq2 = np.random.uniform(55., 65., new_pert)
+            bcs_freq3 = np.random.uniform(55., 65., new_pert)
+            bcs_freq4 = np.random.uniform(55., 65., new_pert)
             booster_freq = np.random.uniform(35., 65., new_pert)
             p_topo = np.random.uniform(8, 12, new_pert)
 
@@ -591,17 +591,11 @@ def mapping_stationary(n_pert, qual):
 
     # Plotando o Gráfico
     if qual == 1:
-        plt.figure(dpi=250)  # Define o DPI como 150
-        plt.plot(est_q_tr, est_P_man, 'r.', markersize=6)  # Aqui você ajusta o tamanho com markersize
+        plt.figure(dpi=250)
+        plt.plot(est_q_tr, est_P_man, 'g.')
+        plt.plot(est_q0_tr, est_P0_man, 'r.')
         plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
         plt.ylabel('$P_{man}$ /bar')
-        plt.grid()
-        plt.show()
-
-        plt.figure(dpi=250)  # Define o DPI como 150
-        plt.plot(est_q0_tr, est_P0_man, 'r.', markersize=6)  # Aqui você ajusta o tamanho com markersize
-        plt.xlabel('$q0_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
-        plt.ylabel('$P0_{man}$ /bar')
         plt.grid()
         plt.show()
 
@@ -639,32 +633,33 @@ def mapping_stationary(n_pert, qual):
         }
         return dados
 
-dados_novos = mapping_stationary(100,1)
-filename = 'dados.pkl'
-import pickle
-with open(filename, "wb") as f:
-    pickle.dump(dados_novos, f)
-
-# import pickle
-#
-# import os
-# filename = 'dados.pkl'
-# if os.path.getsize(filename) > 0:
-#     with open(filename, "rb") as f:
-#         unpickler = pickle.Unpickler(f)
-#         dados_anteriores = unpickler.load()
-#
-# dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
-#
+# dados_novos = mapping_stationary(100,1)
 # filename = 'dados.pkl'
 # import pickle
 # with open(filename, "wb") as f:
-#     pickle.dump(dados_unidos, f)
-#
-# if os.path.getsize(filename) > 0:
-#     with open(filename, "rb") as f:
-#         unpickler = pickle.Unpickler(f)
-#         dados_teste = unpickler.load()
+#     pickle.dump(dados_novos, f)
+
+import pickle
+import os
+
+dados_novos = mapping_stationary(1000, 1)
+filename = 'dados.pkl'
+if os.path.getsize(filename) > 0:
+    with open(filename, "rb") as f:
+        unpickler = pickle.Unpickler(f)
+        dados_anteriores = unpickler.load()
+
+dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
+
+filename = 'dados.pkl'
+import pickle
+with open(filename, "wb") as f:
+    pickle.dump(dados_unidos, f)
+
+if os.path.getsize(filename) > 0:
+    with open(filename, "rb") as f:
+        unpickler = pickle.Unpickler(f)
+        dados_teste = unpickler.load()
 
 
 
