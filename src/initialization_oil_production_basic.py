@@ -599,6 +599,18 @@ def mapping_stationary(n_pert, qual):
         plt.grid()
         plt.show()
 
+        plt.figure(dpi=250)
+        plt.plot(est_q_main1, est_dP_bcs1, 'g.')
+        plt.plot([28.55, 20.77],[206.6, 58.07], 'r-')
+        plt.plot([106.4, 72.68],[145.6, 27.91], 'r-')
+
+        plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$P_{man}$ /bar')
+        plt.grid()
+        plt.show()
+
+
+
         dados = {
             'P_man': est_P_man,
             'P0_man': est_P0_man,
@@ -642,7 +654,7 @@ def mapping_stationary(n_pert, qual):
 import pickle
 import os
 
-dados_novos = mapping_stationary(10000, 1)
+dados_novos = mapping_stationary(100, 1)
 filename = 'dados.pkl'
 if os.path.getsize(filename) > 0:
     with open(filename, "rb") as f:
