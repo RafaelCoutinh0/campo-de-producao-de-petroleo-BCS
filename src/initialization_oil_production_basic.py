@@ -308,10 +308,10 @@ def plotar_graficos(n_pert):
  # %% mapeando estacionários:
 def mapping_stationary(n_pert, qual):
 
-    valve_open1 = np.random.uniform(.42, 1, n_pert)
-    valve_open2 = np.random.uniform(.42, 1, n_pert)
-    valve_open3 = np.random.uniform(.42, 1, n_pert)
-    valve_open4 = np.random.uniform(.42, 1, n_pert)
+    valve_open1 = np.random.uniform(.1, 1, n_pert)
+    valve_open2 = np.random.uniform(.1, 1, n_pert)
+    valve_open3 = np.random.uniform(.1, 1, n_pert)
+    valve_open4 = np.random.uniform(.1, 1, n_pert)
     bcs_freq1 = np.random.uniform(35., 65., n_pert)
     bcs_freq2 = np.random.uniform(35., 65., n_pert)
     bcs_freq3 = np.random.uniform(35., 65., n_pert)
@@ -591,13 +591,13 @@ def mapping_stationary(n_pert, qual):
 
     # Plotando o Gráfico
     if qual == 1:
-        plt.figure(dpi=250)
-        plt.plot(est_q_tr, est_P_man, 'g.')
-        plt.plot(est_q0_tr, est_P0_man, 'r.')
-        plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
-        plt.ylabel('$P_{man}$ /bar')
-        plt.grid()
-        plt.show()
+        # plt.figure(dpi=250)
+        # plt.plot(est_q_tr, est_P_man, 'g.')
+        # plt.plot(est_q0_tr, est_P0_man, 'r.')
+        # plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
+        # plt.ylabel('$P_{man}$ /bar')
+        # plt.grid()
+        # plt.show()
 
         plt.figure(dpi=250)
         plt.plot(est_q_main1, est_dP_bcs1, 'g.')
@@ -654,7 +654,7 @@ def mapping_stationary(n_pert, qual):
 import pickle
 import os
 
-dados_novos = mapping_stationary(100, 1)
+dados_novos = mapping_stationary(1000, 1)
 filename = 'dados.pkl'
 if os.path.getsize(filename) > 0:
     with open(filename, "rb") as f:
@@ -667,11 +667,6 @@ filename = 'dados.pkl'
 import pickle
 with open(filename, "wb") as f:
     pickle.dump(dados_unidos, f)
-
-if os.path.getsize(filename) > 0:
-    with open(filename, "rb") as f:
-        unpickler = pickle.Unpickler(f)
-        dados_teste = unpickler.load()
 
 
 
