@@ -654,7 +654,7 @@ def mapping_stationary(n_pert, qual):
 import pickle
 import os
 
-dados_novos = mapping_stationary(1000, 1)
+dados_novos = mapping_stationary(10000, 1)
 filename = 'dados.pkl'
 if os.path.getsize(filename) > 0:
     with open(filename, "rb") as f:
