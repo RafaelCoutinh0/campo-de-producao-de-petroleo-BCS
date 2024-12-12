@@ -352,6 +352,7 @@ def mapping_stationary(n_pert, qual):
     est_dP_bcs2 = []
     est_dP_bcs3 = []
     est_dP_bcs4 = []
+    flag = []
 
     i = 0
     contador = 0
@@ -364,16 +365,38 @@ def mapping_stationary(n_pert, qual):
         x_ss = y_ss[0:-8]
         i += 1
 
+        env_a_min = (206.6-58.07)/(28.55-20.77)
+        env_b_min = (58.07 - env_a_min*20.55)
+
+        env_a_max = (145.6 - 27.91) / (106.4 - 72.68)
+        env_b_max = (27.91 - env_a_min * 72.68)
+
+        qmin1 = (x_ss[4] - env_b_min)/env_a_min
+        qmax1 = (x_ss[4] - env_b_max)/env_a_max
+        qmin2 = (x_ss[7] - env_b_min) / env_a_min
+        qmax2 = (x_ss[7] - env_b_max) / env_a_max
+        qmin3 = (x_ss[10] - env_b_min) / env_a_min
+        qmax3 = (x_ss[10] - env_b_max) / env_a_max
+        qmin4 = (x_ss[13] - env_b_min) / env_a_min
+        qmax4 = (x_ss[13] - env_b_max) / env_a_max
+        restqmain1 = x_ss[4] >= qmin1 and x_ss[4] <= qmax1
+        restqmain2 = x_ss[7] >= qmin2 and x_ss[7] <= qmax2
+        restqmain3 = x_ss[10] >= qmin3 and x_ss[10] <= qmax3
+        restqmain4 = x_ss[13] >= qmin4 and x_ss[13] <= qmax4
+
+
         # Adicionando na lista se for positivo
         if qual == 1:
-            if x_ss[0] > 0:
-                est_P_man.append(x_ss[0])
-                est_q_tr.append(x_ss[1])
+            if x_ss[0] > 0 and restqmain1 and restqmain2 and restqmain3 and restqmain4 :
+                Flag = -1
+                flag.append(Flag)
                 contador += 1
                 print(f'--{contador}/{n_pert}--')
             else:
-                est_P0_man.append(x_ss[0])
-                est_q0_tr.append(x_ss[1])
+                Flag = 1
+                flag.append(Flag)
+            est_P_man.append(x_ss[0])
+            est_q_tr.append(x_ss[1])
             est_P_fbhp1.append(x_ss[2])
             est_P_fbhp2.append(x_ss[5])
             est_P_fbhp3.append(x_ss[8])
@@ -591,27 +614,76 @@ def mapping_stationary(n_pert, qual):
 
     # Plotando o Gráfico
     if qual == 1:
-        # plt.figure(dpi=250)
-        # plt.plot(est_q_tr, est_P_man, 'g.')
-        # plt.plot(est_q0_tr, est_P0_man, 'r.')
-        # plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
-        # plt.ylabel('$P_{man}$ /bar')
-        # plt.grid()
-        # plt.show()
-
         plt.figure(dpi=250)
-        plt.plot(est_q_main1, est_dP_bcs1, 'g.')
-        plt.plot([28.55, 20.77],[206.6, 58.07], 'r-')
-        plt.plot([106.4, 72.68],[145.6, 27.91], 'r-')
-
+        for i in range(len(est_P_man)):
+            if flag[i] == -1:
+                plt.plot(est_q_tr[i], est_P_man[i], 'g.')
+            else:
+                plt.plot(est_q_tr[i], est_P_man[i], 'r.')
         plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
         plt.ylabel('$P_{man}$ /bar')
         plt.grid()
         plt.show()
 
+        plt.figure(dpi=250)
+        for i in range(len(est_P_man)):
+            if flag[i] == -1:
+                plt.plot(est_q_main1[i], est_dP_bcs1[i], 'g.')
+            else:
+                plt.plot(est_q_main1[i], est_dP_bcs1[i], 'r.')
+        plt.xlabel('$q_{main1}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$dP_{bcs1}$ /bar')
+        plt.grid()
+        plt.show()
+
+        plt.figure(dpi=250)
+        for i in range(len(est_P_man)):
+            pl
+            if flag[i] == -1:
+                plt.plot(est_q_main2[i], est_dP_bcs2[i], 'g.')
+            else:
+                plt.plot(est_q_main2[i], est_dP_bcs2[i], 'r.')
+        plt.xlabel('$q_{main2}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$dP_{bcs2}$ /bar')
+        plt.grid()
+        plt.show()
+
+        plt.figure(dpi=250)
+        for i in range(len(est_P_man)):
+            if flag[i] == -1:
+                plt.plot(est_q_main3[i], est_dP_bcs3[i], 'g.')
+            else:
+                plt.plot(est_q_main3[i], est_dP_bcs3[i], 'r.')
+        plt.xlabel('$q_{main1}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$dP_{bcs1}$ /bar')
+        plt.grid()
+        plt.show()
+
+        plt.figure(dpi=250)
+        for i in range(len(est_P_man)):
+            if flag[i] == -1:
+                plt.plot(est_q_main4[i], est_dP_bcs4[i], 'g.')
+            else:
+                plt.plot(est_q_main4[i], est_dP_bcs4[i], 'r.')
+        plt.xlabel('$q_{main4}$ /(m$^3\cdot$ h$^{-1}$)')
+        plt.ylabel('$dP_{bcs4}$ /bar')
+        plt.grid()
+        plt.show()
+
+        # plt.figure(dpi=250)
+        # plt.plot(est_q_main1, est_dP_bcs1, 'g.')
+        # plt.plot([28.55, 20.77],[206.6, 58.07], 'r-')
+        # plt.plot([106.4, 72.68],[145.6, 27.91], 'r-')
+        #
+        # plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)')
+        # plt.ylabel('$P_{man}$ /bar')
+        # plt.grid()
+        # plt.show()
+
 
 
         dados = {
+            'flag': flag,
             'P_man': est_P_man,
             'P0_man': est_P0_man,
             'q_tr': est_q_tr,
@@ -654,19 +726,19 @@ def mapping_stationary(n_pert, qual):
 import pickle
 import os
 
-dados_novos = mapping_stationary(10000, 1)
-filename = 'dados.pkl'
-if os.path.getsize(filename) > 0:
-    with open(filename, "rb") as f:
-        unpickler = pickle.Unpickler(f)
-        dados_anteriores = unpickler.load()
-
-dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
-
-filename = 'dados.pkl'
-import pickle
-with open(filename, "wb") as f:
-    pickle.dump(dados_unidos, f)
+dados_novos = mapping_stationary(1000, 1)
+# filename = 'dados.pkl'
+# if os.path.getsize(filename) > 0:
+#     with open(filename, "rb") as f:
+#         unpickler = pickle.Unpickler(f)
+#         dados_anteriores = unpickler.load()
+#
+# dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
+#
+# filename = 'dados.pkl'
+# import pickle
+# with open(filename, "wb") as f:
+#     pickle.dump(dados_unidos, f)
 
 
 
