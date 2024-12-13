@@ -378,8 +378,8 @@ def mapping_stationary(n_pert):
         a_min = (206.6-58.07)/(28.55-20.77)
         b_min = 58.07-a_min*20.55
 
-        a_max = (145.6 - 27.91) / (106.4 - 72.68)
-        b_max = 27.91-a_max*72.68
+        a_max = (170.0983885726676 - 44.8570768595651) / (82.07399108766865 - 53.82716056845215)
+        b_max = 44.8570768595651 - a_max * 53.82716056845215
 
         qmin1 = (z_ss[1] - b_min) / a_min
         qmax1 = (z_ss[1] - b_max) / a_max
@@ -434,7 +434,8 @@ def mapping_stationary(n_pert):
     plt.figure(dpi=250)
     plt.plot(np.array(est_q_tr)[np.array(flag)==0], np.array(est_P_man)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_tr)[np.array(flag)==1], np.array(est_P_man)[np.array(flag)==1], 'b.')
-    plt.xlabel('$q_{tr}$ /(m$^3\cdot$ h$^{-1}$)', fontsize = 15)
+    plt.plot([110, 225], [0, 0], 'k--', linewidth=3)
+    plt.xlabel('$q_{tr}$ /(m$^3 \ cdot$ h$^{-1}$)', fontsize = 15)
     plt.ylabel('$P_{man}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -443,8 +444,8 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main1)[np.array(flag)==0], np.array(est_dP_bcs1)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_main1)[np.array(flag)==1], np.array(est_dP_bcs1)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
-    plt.plot([106.4, 72.68], [145.6, 27.91], 'k--', linewidth=3)
-    plt.xlabel('$q_{main1}$ /(m$^3\cdot$ h$^{-1}$)',fontsize = 15)
+    plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
+    plt.xlabel('$q_{main1}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
     plt.ylabel('$dP_{bcs1}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -453,8 +454,8 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main2)[np.array(flag)==0], np.array(est_dP_bcs2)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_main2)[np.array(flag)==1], np.array(est_dP_bcs2)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
-    plt.plot([106.4, 72.68], [145.6, 27.91], 'k--', linewidth=3)
-    plt.xlabel('$q_{main2}$ /(m$^3\cdot$ h$^{-1}$)',fontsize = 15)
+    plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
+    plt.xlabel('$q_{main2}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
     plt.ylabel('$dP_{bcs2}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -463,8 +464,8 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main3)[np.array(flag)==0], np.array(est_dP_bcs3)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_main3)[np.array(flag)==1], np.array(est_dP_bcs3)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
-    plt.plot([106.4, 72.68], [145.6, 27.91], 'k--', linewidth=3)
-    plt.xlabel('$q_{main3}$ /(m$^3\cdot$ h$^{-1}$)',fontsize = 15)
+    plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
+    plt.xlabel('$q_{main3}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
     plt.ylabel('$dP_{bcs3}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -473,8 +474,8 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main4)[np.array(flag)==0], np.array(est_dP_bcs4)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_main4)[np.array(flag)==1], np.array(est_dP_bcs4)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77],[206.6, 58.07], 'k--', linewidth=3)
-    plt.plot([106.4, 72.68],[145.6, 27.91], 'k--', linewidth=3)
-    plt.xlabel('$q_{main4}$ /(m$^3\cdot$ h$^{-1}$)',fontsize = 15)
+    plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
+    plt.xlabel('$q_{main4}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
     plt.ylabel('$dP_{bcs4}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -517,7 +518,7 @@ def mapping_stationary(n_pert):
 import pickle
 import os
 
-dados_novos = mapping_stationary(1000)
+dados_novos = mapping_stationary(10000)
 # filename = 'dadoswithflag.pkl'
 # with open(filename, "wb") as f:
 #     pickle.dump(dados_novos, f)
@@ -533,6 +534,7 @@ dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in
 filename = 'dadoswithflag.pkl'
 import pickle
 with open(filename, "wb") as f:
+    print("AAAAAAAAAAAAA")
     pickle.dump(dados_unidos, f)
 
 
