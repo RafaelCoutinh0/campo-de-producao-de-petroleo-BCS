@@ -518,8 +518,8 @@ def mapping_stationary(n_pert):
 import pickle
 import os
 
-dados_novos = mapping_stationary(10000)
-# filename = 'dadoswithflag.pkl'
+dados_novos = mapping_stationary(1000)
+# filename = 'dadosfinal.pkl'
 # with open(filename, "wb") as f:
 #     pickle.dump(dados_novos, f)
 
