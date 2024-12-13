@@ -16,7 +16,7 @@ import matplotlib.pyplot
 from matplotlib import rcParams
 from casadi import MX, interpolant, Function, sqrt, vertcat, integrator, jacobian, transpose
 # from scipy.special import functions
-
+from plotgraf import *
 from bcs_models import *
 from manifold import *
 from numpy import linspace, array, eye, zeros, repeat, concatenate, delete, diag
@@ -435,7 +435,7 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_tr)[np.array(flag)==0], np.array(est_P_man)[np.array(flag)==0], 'r.')
     plt.plot(np.array(est_q_tr)[np.array(flag)==1], np.array(est_P_man)[np.array(flag)==1], 'b.')
     plt.plot([110, 225], [0, 0], 'k--', linewidth=3)
-    plt.xlabel('$q_{tr}$ /(m$^3 \ cdot$ h$^{-1}$)', fontsize = 15)
+    plt.xlabel(r"$q_{tr}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
     plt.ylabel('$P_{man}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -445,7 +445,7 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main1)[np.array(flag)==1], np.array(est_dP_bcs1)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
     plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
-    plt.xlabel('$q_{main1}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
+    plt.xlabel(r"$q_{main1}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
     plt.ylabel('$dP_{bcs1}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -455,7 +455,7 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main2)[np.array(flag)==1], np.array(est_dP_bcs2)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
     plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
-    plt.xlabel('$q_{main2}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
+    plt.xlabel(r"$q_{main2}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
     plt.ylabel('$dP_{bcs2}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -465,7 +465,7 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main3)[np.array(flag)==1], np.array(est_dP_bcs3)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
     plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
-    plt.xlabel('$q_{main3}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
+    plt.xlabel(r"$q_{main3}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
     plt.ylabel('$dP_{bcs3}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -475,7 +475,7 @@ def mapping_stationary(n_pert):
     plt.plot(np.array(est_q_main4)[np.array(flag)==1], np.array(est_dP_bcs4)[np.array(flag)==1], 'b.')
     plt.plot([28.55, 20.77],[206.6, 58.07], 'k--', linewidth=3)
     plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
-    plt.xlabel('$q_{main4}$ /(m$^3 \ cdot$ h$^{-1}$)',fontsize = 15)
+    plt.xlabel(r"$q_{main2}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
     plt.ylabel('$dP_{bcs4}$ /bar',fontsize = 15)
     plt.grid()
     plt.show()
@@ -512,39 +512,3 @@ def mapping_stationary(n_pert):
         'x0': x0
     }
     return dados
-
-
-
-import pickle
-import os
-
-dados_novos = mapping_stationary(1000)
-# filename = 'dadosfinal.pkl'
-# with open(filename, "wb") as f:
-#     pickle.dump(dados_novos, f)
-
-filename = 'dadoswithflag.pkl'
-if os.path.getsize(filename) > 0:
-    with open(filename, "rb") as f:
-        unpickler = pickle.Unpickler(f)
-        dados_anteriores = unpickler.load()
-
-dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
-
-filename = 'dadoswithflag.pkl'
-import pickle
-with open(filename, "wb") as f:
-    print("AAAAAAAAAAAAA")
-    pickle.dump(dados_unidos, f)
-
-
-
-
-
-
-
-
-
-
-
-
