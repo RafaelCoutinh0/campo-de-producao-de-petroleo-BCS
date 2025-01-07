@@ -512,3 +512,113 @@ def mapping_stationary(n_pert):
         'x0': x0
     }
     return dados
+
+
+from casadi import *
+import numpy as np
+
+# Definição de variáveis manipuláveis
+u = MX.sym('u', 10)  # [f_BP, p_topside, f_ESP_1, alpha_1, ..., f_ESP_4, alpha_4]
+
+# Variáveis do sistema
+x = MX.sym('x', 14)  # Estados (pressões, vazões, etc.)
+z = MX.sym('z', 8)   # Variáveis algébricas
+
+# Parâmetros do problema
+lambda_energy = 0.01  # Peso para penalidade da energia
+
+# Função de energia (soma das frequências das bombas)
+energy = u[0] + u[2] + u[4] + u[6] + u[8]  # f_BP + f_ESP_1 + f_ESP_2 + f_ESP_3 + f_ESP_4
+
+# Produção total (soma das vazões dos poços)
+q_mean = x[4] + x[7] + x[10] + x[13]  # q_mean_1 + q_mean_2 + q_mean_3 + q_mean_4
+
+# Função objetivo
+objective = -q_mean + lambda_energy * energy
+
+# Restrições operacionais
+g_constraints = [
+    x[0] - 10,   # p_man >= 10
+    100 - x[0],  # p_man <= 100
+]
+
+# Limites para pressões nos poços e chokes (>= 5 bar)
+g_constraints += [x[i] - 5 for i in [2, 3, 5, 6, 8, 9, 11, 12]]
+
+# Placeholder para restrições dinâmicas (substitua pelo modelo real)
+dae_constraints = []  # Exemplo: substitua por mani.model(...)
+g_constraints += dae_constraints
+
+# Configuração do problema de otimização
+nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': vertcat(*g_constraints)}
+
+# Criar o solver
+solver = nlpsol('solver', 'ipopt', nlp)
+
+# Valores iniciais para as variáveis
+u0 = np.array([50., 10 ** 5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
+
+x0 = np.array([
+    76.52500, 340,  # Manifold states
+    64.11666, 120.91641, 85,  # Well 1
+    64.11666, 120.91641, 85,  # Well 2
+    64.11666, 120.91641, 85,  # Well 3
+    64.11666, 120.91641, 85   # Well 4
+])
+
+z0 = np.array([
+    30.03625, 209.91713,  # Well 1
+    30.03625, 209.91713,  # Well 2
+    30.03625, 209.91713,  # Well 3
+    30.03625, 209.91713   # Well 4
+])
+
+# Combine variáveis iniciais
+x0_full = np.concatenate((x0, z0, u0))
+
+# Definir limites corrigidos
+# Ajustar limites inferiores e valores iniciais
+lbx = [0] * 14 + [0] * 8 + [35, 8e4, 35, 0, 35, 0, 35, 0, 35, 0]
+ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1e6, 65, 1, 65, 1, 65, 1, 65, 1]
+u0 = np.array([50., 8e4, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
+
+# Resolver o problema
+sol = solver(x0=np.concatenate((x0, z0, u0)), lbx=lbx, ubx=ubx, lbg=0, ubg=0)
+
+# Resultados
+optimal_solution = sol['x']
+print("Solução ótima para x (estados):")
+state_names = [
+    "p_man (bar)", "q_tr (m^3/h)",
+    "P_fbhp_1 (bar)", "P_choke_1 (bar)", "q_mean_1 (m^3/h)",
+    "P_fbhp_2 (bar)", "P_choke_2 (bar)", "q_mean_2 (m^3/h)",
+    "P_fbhp_3 (bar)", "P_choke_3 (bar)", "q_mean_3 (m^3/h)",
+    "P_fbhp_4 (bar)", "P_choke_4 (bar)", "q_mean_4 (m^3/h)"
+]
+for i, name in enumerate(state_names):
+    print(f"{name}: {float(optimal_solution[i]):.4f}")
+
+print("\nSolução ótima para z (algébricas):")
+algebraic_names = [
+    "P_intake_1 (bar)", "dP_bcs_1 (bar)",
+    "P_intake_2 (bar)", "dP_bcs_2 (bar)",
+    "P_intake_3 (bar)", "dP_bcs_3 (bar)",
+    "P_intake_4 (bar)", "dP_bcs_4 (bar)"
+]
+for i, name in enumerate(algebraic_names):
+    print(f"{name}: {float(optimal_solution[14 + i]):.4f}")
+
+print("\nSolução ótima para u (variáveis manipuláveis):")
+control_names = [
+    "f_BP (Hz)", "p_topside (Pa)",
+    "f_ESP_1 (Hz)", "alpha_1 (-)",
+    "f_ESP_2 (Hz)", "alpha_2 (-)",
+    "f_ESP_3 (Hz)", "alpha_3 (-)",
+    "f_ESP_4 (Hz)", "alpha_4 (-)"
+]
+for i, name in enumerate(control_names):
+    print(f"{name}: {float(optimal_solution[22 + i]):.4f}")
+
+
+
+
