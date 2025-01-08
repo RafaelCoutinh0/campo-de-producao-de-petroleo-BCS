@@ -24,17 +24,11 @@ mani_model = mani.model(0, x, z, u)
 
 # Restrições do modelo e operacionais
 limite_de_energia = 250
-g_constraints = vertcat(*mani_model, u[0] + u[2] + u[4] + u[6] + u[8] - limite_de_energia,x[0] - 1)  # Apenas as restrições do modelo
+g_constraints = vertcat(*mani_model, u[0] + u[2] + u[4] + u[6] + u[8] - limite_de_energia)  # Apenas as restrições do modelo
 
 # Configuração do problema de otimização
 nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
-opts = {
-    'ipopt.tol': 1e-5,           # Tolerância de solução
-    'ipopt.max_iter': 1000,      # Número máximo de iterações
-    'ipopt.print_level': 5,     # Nível de saída detalhado
-    'print_time': True
-}
-solver = nlpsol('solver', 'ipopt', nlp, opts)
+solver = nlpsol('solver', 'ipopt', nlp)
 
 
 
@@ -48,11 +42,13 @@ x0 = y_ss[:14]
 z0 = y_ss[14:]
 x0_full = np.concatenate((x0, z0, u0))
 
+print(x0, z0, u0)
+
 
 
 # Definir limites das variáveis
-lbx = [0] * 14 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]  # Inferiores
-ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65, 1, 65, 1]  # Superiores
+lbx = [1.00001] + [0] * 13 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
+ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 
 # Resolver o problema de otimização
@@ -111,3 +107,75 @@ for i, name in enumerate(state_names):
     print(f"{name}: Otimizado = {float(x_opt[i]):.4f}, fsolve = {float(x_ss[i]):.4f}")
 for i, name in enumerate(algebraic_names):
     print(f"{name}: Otimizado = {float(z_opt[i]):.4f}, fsolve = {float(z_ss[i]):.4f}")
+
+print(u_opt)
+
+x0 = [76.52500, 4 * 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85]
+
+z0 = [30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625]
+u0 = u_opt
+mani_solver = lambda y: np.array([float(i) for i in mani.model(0, x0, z0, u0)])
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+
+# Separar resultados do fsolve
+x_ss = y_ss[:14]
+z_ss = y_ss[14:]
+print(x_ss, z_ss, u_opt)
+
+# def get_real_time_data():
+#     """
+#     Simula a aquisição de dados em tempo real.
+#     Deve ser substituída por uma integração com sensores do sistema real.
+#     """
+#     # Simular dados medidos (substitua pelos reais)
+#     measured_x = np.random.uniform(50, 100, 14)  # Exemplo de valores medidos para x
+#     measured_z = np.random.uniform(20, 40, 8)    # Exemplo de valores medidos para z
+#     return measured_x, measured_z
+#
+# # Obter dados em tempo real
+# measured_x, measured_z = get_real_time_data()
+#
+# # Atualizar os estados iniciais
+# x0 = measured_x
+# z0 = measured_z
+# x0_full = np.concatenate((x0, z0, u0))
+#
+# import time
+#
+#
+# def rto_loop(interval):
+#     """
+#     Executa a otimização em tempo real com intervalo definido.
+#     :param interval: Tempo em segundos entre cada execução.
+#     """
+#     while True:
+#         print("\nIniciando nova iteração do RTO...")
+#
+#         # Obter dados em tempo real
+#         measured_x, measured_z = get_real_time_data()
+#
+#         # Atualizar valores iniciais
+#         x0 = measured_x
+#         z0 = measured_z
+#         x0_full = np.concatenate((x0, z0, u0))
+#
+#         # Resolver o problema de otimização
+#         try:
+#             sol = solver(x0=x0_full, lbx=lbx, ubx=ubx, lbg=0, ubg=0)
+#             optimal_solution = sol['x']
+#
+#             # Extrair resultados
+#             u_opt = optimal_solution[22:]
+#             print("Resultados ótimos para variáveis manipuláveis (u):", u_opt)
+#         except Exception as e:
+#             print("Erro na otimização:", e)
+#
+#         # Aguardar até a próxima iteração
+#         time.sleep(interval)
