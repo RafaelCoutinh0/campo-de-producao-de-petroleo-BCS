@@ -26,11 +26,11 @@ head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 # Booster pump Head [m]
 
 lambda_energy = 0.1  # Peso menor para a penalidade
-objective = (rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2)) + \
+objective = (((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2)) + \
             (rho * g * x[4] * (1.0963e3 * (u[2] / 50) ** 2)) + \
             (rho * g * x[7] * (1.0963e3 * (u[4] / 50) ** 2)) + \
             (rho * g * x[10] * (1.0963e3 * (u[6] / 50) ** 2)) + \
-            (rho * g * x[13] * (1.0963e3 * (u[8] / 50) ** 2))
+            (rho * g * x[13] * (1.0963e3 * (u[8] / 50) ** 2)))/1000) * 0.9 - (2700 * x[1])
 
 
 
