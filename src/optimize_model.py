@@ -30,24 +30,18 @@ g_constraints = vertcat(*mani_model, u[0] + u[2] + u[4] + u[6] + u[8] - limite_d
 nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
 solver = nlpsol('solver', 'ipopt', nlp)
 
-
-
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
 u0 = np.array([56., 1e5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
 
 # Atualizar x0 e z0 com os resultados do fsolve
 x0 = y_ss[:14]
 z0 = y_ss[14:]
 x0_full = np.concatenate((x0, z0, u0))
 
-print(x0, z0, u0)
-
-
-
 # Definir limites das variáveis
-lbx = [1.00001] + [0] * 13 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
+lbx = [1] + [0] * 13 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
 ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 
@@ -61,7 +55,6 @@ z_opt = optimal_solution[14:22]
 u_opt = optimal_solution[22:]
 
 # Imprimir resultados otimizados
-
 state_names = [
     "p_man (bar)", "q_tr (m^3/h)",
     "P_fbhp_1 (bar)", "P_choke_1 (bar)", "q_mean_1 (m^3/h)",
@@ -69,20 +62,14 @@ state_names = [
     "P_fbhp_3 (bar)", "P_choke_3 (bar)", "q_mean_3 (m^3/h)",
     "P_fbhp_4 (bar)", "P_choke_4 (bar)", "q_mean_4 (m^3/h)"
 ]
-# for i, name in enumerate(state_names):
-#     print(f"{name}: {float(x_opt[i]):.4f}")
-#
-# print("\nResultados otimizados para z (algébricas):")
+
 algebraic_names = [
     "P_intake_1 (bar)", "dP_bcs_1 (bar)",
     "P_intake_2 (bar)", "dP_bcs_2 (bar)",
     "P_intake_3 (bar)", "dP_bcs_3 (bar)",
     "P_intake_4 (bar)", "dP_bcs_4 (bar)"
 ]
-# for i, name in enumerate(algebraic_names):
-#     print(f"{name}: {float(z_opt[i]):.4f}")
-#
-# print("\nResultados otimizados para u (variáveis manipuláveis):")
+
 control_names = [
     "f_BP (Hz)", "p_topside (Pa)",
     "f_ESP_1 (Hz)", "alpha_1 (-)",
@@ -90,8 +77,6 @@ control_names = [
     "f_ESP_3 (Hz)", "alpha_3 (-)",
     "f_ESP_4 (Hz)", "alpha_4 (-)"
 ]
-# for i, name in enumerate(control_names):
-#     print(f"{name}: {float(u_opt[i]):.4f}")
 
 # Verificar consistência com fsolve
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u_opt)])
@@ -122,60 +107,9 @@ z0 = [30.03625, 239.95338-30.03625,
       30.03625, 239.95338-30.03625]
 u0 = u_opt
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, x0, z0, u0)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
 
 # Separar resultados do fsolve
 x_ss = y_ss[:14]
 z_ss = y_ss[14:]
 print(x_ss, z_ss, u_opt)
-
-# def get_real_time_data():
-#     """
-#     Simula a aquisição de dados em tempo real.
-#     Deve ser substituída por uma integração com sensores do sistema real.
-#     """
-#     # Simular dados medidos (substitua pelos reais)
-#     measured_x = np.random.uniform(50, 100, 14)  # Exemplo de valores medidos para x
-#     measured_z = np.random.uniform(20, 40, 8)    # Exemplo de valores medidos para z
-#     return measured_x, measured_z
-#
-# # Obter dados em tempo real
-# measured_x, measured_z = get_real_time_data()
-#
-# # Atualizar os estados iniciais
-# x0 = measured_x
-# z0 = measured_z
-# x0_full = np.concatenate((x0, z0, u0))
-#
-# import time
-#
-#
-# def rto_loop(interval):
-#     """
-#     Executa a otimização em tempo real com intervalo definido.
-#     :param interval: Tempo em segundos entre cada execução.
-#     """
-#     while True:
-#         print("\nIniciando nova iteração do RTO...")
-#
-#         # Obter dados em tempo real
-#         measured_x, measured_z = get_real_time_data()
-#
-#         # Atualizar valores iniciais
-#         x0 = measured_x
-#         z0 = measured_z
-#         x0_full = np.concatenate((x0, z0, u0))
-#
-#         # Resolver o problema de otimização
-#         try:
-#             sol = solver(x0=x0_full, lbx=lbx, ubx=ubx, lbg=0, ubg=0)
-#             optimal_solution = sol['x']
-#
-#             # Extrair resultados
-#             u_opt = optimal_solution[22:]
-#             print("Resultados ótimos para variáveis manipuláveis (u):", u_opt)
-#         except Exception as e:
-#             print("Erro na otimização:", e)
-#
-#         # Aguardar até a próxima iteração
-#         time.sleep(interval)

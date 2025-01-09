@@ -26,11 +26,11 @@ head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 # Booster pump Head [m]
 
 lambda_energy = 0.1  # Peso menor para a penalidade
-objective = (rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2)) + \
-            (rho * g * x[4] * (1.0963e3 * (u[2] / 50) ** 2)) + \
-            (rho * g * x[7] * (1.0963e3 * (u[4] / 50) ** 2)) + \
-            (rho * g * x[10] * (1.0963e3 * (u[6] / 50) ** 2)) + \
-            (rho * g * x[13] * (1.0963e3 * (u[8] / 50) ** 2))
+objective = ((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2))  + \
+            z[1] + \
+            z[3] + \
+            z[5]  + \
+            z[7]) * 0.91
 
 
 
@@ -48,7 +48,7 @@ solver = nlpsol('solver', 'ipopt', nlp)
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
 u0 = np.array([56., 1e5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-6, maxfev=20000)
 
 # Atualizar x0 e z0 com os resultados do fsolve
 x0 = y_ss[:14]
@@ -56,8 +56,8 @@ z0 = y_ss[14:]
 x0_full = np.concatenate((x0, z0, u0))
 
 # Definir limites das variáveis
-lbx = [1.00001] +[150]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
-ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
+lbx = [1] +[150]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
+ubx = [np.inf] + [200] + [np.inf] * 12 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 
 # Resolver o problema de otimização
@@ -96,7 +96,7 @@ control_names = [
 
 # Verificar consistência com fsolve
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u_opt)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-6, maxfev=20000)
 
 # Separar resultados do fsolve
 x_ss = y_ss[:14]
@@ -121,9 +121,9 @@ energybcs1 = (rho * g * x_ss[4] * (1.0963e3 * (u_opt[2] / 50) ** 2))
 energybcs2 = (rho * g * x_ss[7] * (1.0963e3 * (u_opt[4] / 50) ** 2))
 energybcs3 = (rho * g * x_ss[10] * (1.0963e3 * (u_opt[6] / 50) ** 2))
 energybcs4 = (rho * g * x_ss[13] * (1.0963e3 * (u_opt[8] / 50) ** 2))
-print(f"Energia total: {energytot}")
-print(f"Energia do booster: {energybooster}")
-print(f"Energia do BCS 1: {energybcs1}")
-print(f"Energia do BCS 2: {energybcs2}")
-print(f"Energia do BCS 3: {energybcs3}")
-print(f"Energia do BCS 4: {energybcs4}")
+print(f"Energia total(KW): {energytot/1000}")
+print(f"Energia do booster(KW): {energybooster/1000}")
+print(f"Energia do BCS (KW): {energybcs1/1000}")
+print(f"Energia do BCS 2(KW): {energybcs2/1000}")
+print(f"Energia do BCS 3(KW): {energybcs3/1000}")
+print(f"Energia do BCS 4(KW): {energybcs4/1000}")

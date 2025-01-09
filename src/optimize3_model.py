@@ -12,7 +12,6 @@ u = MX.sym('u', 10)  # [f_BP, p_topside, f_ESP_1, alpha_1, ..., f_ESP_4, alpha_4
 x = MX.sym('x', 14)  # Estados (pressões, vazões, etc.)
 z = MX.sym('z', 8)   # Variáveis algébricas
 
-
 rho = 984
 g = 9.81
 eff = 0.98
@@ -26,15 +25,15 @@ head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 # Booster pump Head [m]
 
 lambda_energy = 0.1  # Peso menor para a penalidade
-objective = (((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2)) + \
-            (rho * g * x[4] * (1.0963e3 * (u[2] / 50) ** 2)) + \
-            (rho * g * x[7] * (1.0963e3 * (u[4] / 50) ** 2)) + \
-            (rho * g * x[10] * (1.0963e3 * (u[6] / 50) ** 2)) + \
-            (rho * g * x[13] * (1.0963e3 * (u[8] / 50) ** 2)))/1000) * 0.9 - (2700 * x[1])
+objective = ((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2))  + \
+            z[1] + \
+            z[3] + \
+            z[5]  + \
+            z[7]) * 0.91  \
+            + 70000 * x[1]
 
 
-
-# Certifique-se de que a função `mani.model` esteja implementada corretamente
+# Certifique-se de que a função mani.model esteja implementada corretamente
 mani_model = mani.model(0, x, z, u)
 
 
@@ -48,7 +47,7 @@ solver = nlpsol('solver', 'ipopt', nlp)
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
 u0 = np.array([56., 1e5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
 
 # Atualizar x0 e z0 com os resultados do fsolve
 x0 = y_ss[:14]
@@ -56,7 +55,7 @@ z0 = y_ss[14:]
 x0_full = np.concatenate((x0, z0, u0))
 
 # Definir limites das variáveis
-lbx = [1.00001] +[150]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0]
+lbx = [1] +[0]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
 ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 
@@ -96,7 +95,7 @@ control_names = [
 
 # Verificar consistência com fsolve
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u_opt)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-8, maxfev=10000)
+y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
 
 # Separar resultados do fsolve
 x_ss = y_ss[:14]
