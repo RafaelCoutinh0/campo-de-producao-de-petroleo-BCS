@@ -481,13 +481,18 @@ def mapping_stationary(n_pert):
     plt.show()
 
     dados = {
-        'flag': flag,
-        'P_man': est_P_man,
-        'q_tr': est_q_tr,
-        'valves': valves_rand,
-        'bcs_freq': bcs_rand,
-        'booster_freq': booster_rand.tolist(),
+
         'p_topo': p_topo_rand.tolist(),
+        'valve1': valve_open1,
+        'valve2': valve_open2,
+        'valve3': valve_open3,
+        'valve4': valve_open4,
+        'bcs1_freq': bcs_freq1,
+        'bcs2_freq': bcs_freq2,
+        'bcs3_freq': bcs_freq3,
+        'bcs4_freq': bcs_freq4,
+        'booster_freq': booster_rand.tolist(),
+        'P_man': est_P_man,
         'P_fbhp1': est_P_fbhp1,
         'P_fbhp2': est_P_fbhp2,
         'P_fbhp3': est_P_fbhp3,
@@ -496,10 +501,6 @@ def mapping_stationary(n_pert):
         'P_choke2': est_P_choke2,
         'P_choke3': est_P_choke3,
         'P_choke4': est_P_choke4,
-        'q_main1': est_q_main1,
-        'q_main2': est_q_main2,
-        'q_main3': est_q_main3,
-        'q_main4': est_q_main4,
         'P_intake1': est_P_intake1,
         'P_intake2': est_P_intake2,
         'P_intake3': est_P_intake3,
@@ -508,7 +509,19 @@ def mapping_stationary(n_pert):
         'dP_bcs2': est_dP_bcs2,
         'dP_bcs3': est_dP_bcs3,
         'dP_bcs4': est_dP_bcs4,
-        'z0': z0,
-        'x0': x0
+        'q_main1': est_q_main1,
+        'q_main2': est_q_main2,
+        'q_main3': est_q_main3,
+        'q_main4': est_q_main4,
+        'q_tr': est_q_tr,
+        'flag': flag,
     }
     return dados
+
+
+RNA_BASIC = mapping_stationary(50000)
+filename = 'rna_training.pkl'
+import pickle
+with open(filename, "wb") as f:
+    pickle.dump(RNA_BASIC, f)
+    print("Dados Unidos")
