@@ -6,8 +6,26 @@ from matplotlib.style.core import library
 from torch.utils.data import Dataset, DataLoader
 import torch.distributions.uniform as urand
 import pickle
+from torch.utils.data import random_split
 
 
+def split_dataset(dataset, train_ratio=0.7):
+    """
+    Divide o dataset em conjuntos de treinamento e teste.
+
+    Args:
+        dataset (Dataset): O dataset completo a ser dividido.
+        train_ratio (float): A proporção do conjunto de treinamento.
+
+    Returns:
+        train_dataset, test_dataset: Os datasets de treinamento e teste.
+    """
+    total_len = len(dataset)
+    train_len = int(total_len * train_ratio)
+    test_len = total_len - train_len
+
+    train_dataset, test_dataset = random_split(dataset, [train_len, test_len])
+    return train_dataset, test_dataset
 def load_data_from_pkl(file_path):
     with open(file_path, 'rb') as file:
         data = pickle.load(file)
@@ -107,6 +125,44 @@ def train(model, dataloader, optimizer, lossfunc):
     avg_loss = cumloss / len(dataloader)
     return avg_loss, y_labels, pred_labels
 
+def test(model, dataloader, lossfunc):
+    """
+    Avalia o modelo nos dados de teste.
+
+    Args:
+        model (nn.Module): O modelo treinado.
+        dataloader (DataLoader): DataLoader com os dados de teste.
+        lossfunc (nn.Module): Função de perda.
+
+    Returns:
+        avg_loss (float): A perda média no conjunto de teste.
+        y_labels (list): Os rótulos reais.
+        pred_labels (list): As previsões do modelo.
+    """
+    model.eval()  # Coloca o modelo em modo de avaliação
+    cumloss = 0.0
+    y_labels = []
+    pred_labels = []
+
+    with torch.no_grad():  # Desativa o cálculo do gradiente
+        for X, y in dataloader:
+            X = X.to(device)
+            y = y.to(device)
+
+            y_labels_batch = y.cpu().tolist()
+            pred = model(X)
+            loss = lossfunc(pred, y)
+
+            pred_labels_batch = pred.cpu().tolist()
+
+            # Acumula resultados e perdas
+            y_labels.extend(y_labels_batch)
+            pred_labels.extend(pred_labels_batch)
+            cumloss += loss.item()
+
+    avg_loss = cumloss / len(dataloader)
+    return avg_loss, y_labels, pred_labels
+
 
 if __name__ == "__main__":
     file_path = 'rna_training.pkl'
@@ -127,9 +183,14 @@ if __name__ == "__main__":
     # Criar o dataset e DataLoader
     input_dim = len(feature_vars)  # Dimensão da entrada
     output_dim = len(label_vars)  # Dimensão da saída
+    # Criar o dataset completo
     dataset = MyLibraryDataset(library_data, feature_vars, label_vars)
-    dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
-
+    # Dividir o dataset em treinamento e teste
+    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.7)
+    # Criar os DataLoaders para treinamento e teste
+    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Rodando na {device}")
 
@@ -158,3 +219,13 @@ for epoch in range(epochs):
                 print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
             else:
                 print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+
+for epoch in range(epochs):
+    # Testar o modelo após o treinamento
+    test_loss, y_labels, pred_labels = test(model, test_dataloader, lossfunc)
+    print(f"\nTeste Final: Loss = {test_loss}")
+    for i, name in enumerate(saidas):
+        if (pred_labels[-1][i] >= 0.5 and y_labels[-1][i] >= 0.5) or (pred_labels[-1][i] < 0.5 and y_labels[-1][i] < 0.5):
+            print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
