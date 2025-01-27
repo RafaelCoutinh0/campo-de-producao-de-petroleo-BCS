@@ -517,11 +517,3 @@ def mapping_stationary(n_pert):
         'flag': flag,
     }
     return dados
-
-
-RNA_BASIC = mapping_stationary(50000)
-filename = 'rna_training.pkl'
-import pickle
-with open(filename, "wb") as f:
-    pickle.dump(RNA_BASIC, f)
-    print("Dados Unidos")

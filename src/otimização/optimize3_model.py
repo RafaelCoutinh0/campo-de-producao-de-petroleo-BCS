@@ -16,26 +16,29 @@ rho = 984
 g = 9.81
 eff = 0.98
 # Parâmetros do problema
-head_booster = [1.0963e3 * ( u[0]/ 50) ** 2]
+head_booster = [(1.0963e3 * ( 65/ 50) ** 2)* 9,]
+# print(head_booster, 200/984)
 head_bcs1 = [1.0963e3 * ( u[2]/ 50) ** 2]
 head_bcs2 = [1.0963e3 * ( u[4]/ 50) ** 2]
 head_bcs3 = [1.0963e3 * ( u[6]/ 50) ** 2]
 head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 
 # Booster pump Head [m]
+booster_gasto = (9653.04 * (100/3600) * (((1.0963e3 * (60/50) ** 2)/1e5))*0.001)
+bcs_gasto = (((80/3600) * (100))*0.001)
 
-lambda_energy = 0.1  # Peso menor para a penalidade
-objective = ((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2))  + \
-            z[1]/984 + \
-            z[3]/984 + \
-            z[5]/984  + \
-            z[7]/984) * 0.91  \
-            + 70000 * x[1]
+print(bcs_gasto)
+print(booster_gasto)
+
+objective = -(70000 * x[1]) + (((9653.04 * (x[1]/3600) * ((1.0963e3 * (u[0]/ 50) ** 2)/1e5) * 0.001) +\
+        (((x[4]/3600) * z[1]) * 0.001) + \
+        (((x[7]/3600) * z[3]) * 0.001) + \
+        (((x[10]/3600) * z[5]) * 0.001)  + \
+        (((x[13]/3600) * z[7]) * 0.001)) * 910) \
 
 
 # Certifique-se de que a função mani.model esteja implementada corretamente
 mani_model = mani.model(0, x, z, u)
-
 
 # Restrições do modelo e operacionais
 g_constraints = vertcat(*mani_model)  # Apenas as restrições do modelo
@@ -45,8 +48,18 @@ nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
 solver = nlpsol('solver', 'ipopt', nlp)
 
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
-u0 = np.array([56., 1e5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
+u0 = np.array([65., 1e5, 65., 1, 65., 1, 65., 1, 65., 1])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
+x0 = [76.52500, 4 * 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85,
+      64.11666, 120.91641, 85]
+
+z0 = [30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625,
+      30.03625, 239.95338-30.03625]
 y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
 
 # Atualizar x0 e z0 com os resultados do fsolve
@@ -55,7 +68,7 @@ z0 = y_ss[14:]
 x0_full = np.concatenate((x0, z0, u0))
 
 # Definir limites das variáveis
-lbx = [1] +[0]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
+lbx = [0] +[0]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
 ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 
@@ -110,17 +123,15 @@ for i, name in enumerate(algebraic_names):
 for i, name in enumerate(control_names):
     print(f"{name}: {float(u_opt[i]):.4f}")
 
-energytot = (rho * g * x_ss[1] * (1.0963e3 * (u_opt[0] / 50) ** 2)) + \
-            (rho * g * x_ss[4] * (1.0963e3 * (u_opt[2] / 50) ** 2)) + \
-            (rho * g * x_ss[7] * (1.0963e3 * (u_opt[4] / 50) ** 2)) + \
-            (rho * g * x_ss[10] * (1.0963e3 * (u_opt[6] / 50) ** 2)) + \
-            (rho * g * x_ss[13] * (1.0963e3 * (u_opt[8] / 50) ** 2))
-energybooster = (rho * g * x_ss[1] * (1.0963e3 * (u_opt[0] / 50) ** 2))
-energybcs1 = (rho * g * x_ss[4] * (1.0963e3 * (u_opt[2] / 50) ** 2))
-energybcs2 = (rho * g * x_ss[7] * (1.0963e3 * (u_opt[4] / 50) ** 2))
-energybcs3 = (rho * g * x_ss[10] * (1.0963e3 * (u_opt[6] / 50) ** 2))
-energybcs4 = (rho * g * x_ss[13] * (1.0963e3 * (u_opt[8] / 50) ** 2))
-print(f"Energia total: {energytot}")
+energybooster = (9653.04 * (x_ss[1]/3600) * (((1.0963e3 * (u_opt[0]/ 50) ** 2)/1e5)/0.98)*0.001)
+energybcs1 = ((9653.04 * (x_ss[4]/3600) * (z_ss[1]/9653.04))*0.001)
+energybcs2 = ((9653.04 * (x_ss[7]/3600) * (z_ss[3]/9653.04))*0.001)
+energybcs3 = ((9653.04 * (x_ss[10]/3600) * (z_ss[5]/9653.04))*0.001)
+energybcs4 = ((9653.04 * (x_ss[13]/3600) * (z_ss[7]/9653.04))*0.001)
+energytot = (energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4) * 910
+venda = 70000 * x_ss[1]
+print(f"valor vendido {venda}")
+print(f"Energia total valor: {energytot}")
 print(f"Energia do booster: {energybooster}")
 print(f"Energia do BCS 1: {energybcs1}")
 print(f"Energia do BCS 2: {energybcs2}")
