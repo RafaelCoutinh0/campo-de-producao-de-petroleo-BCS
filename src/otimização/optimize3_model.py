@@ -30,11 +30,11 @@ bcs_gasto = (((80/3600) * (100))*0.001)
 print(bcs_gasto)
 print(booster_gasto)
 
-objective = -(70000 * x[1]) + (((9653.04 * (x[1]/3600) * ((1.0963e3 * (u[0]/ 50) ** 2)/1e5) * 0.001) +\
-        (((x[4]/3600) * z[1]) * 0.001) + \
-        (((x[7]/3600) * z[3]) * 0.001) + \
-        (((x[10]/3600) * z[5]) * 0.001)  + \
-        (((x[13]/3600) * z[7]) * 0.001)) * 910) \
+objective = -(70000 * x[1]) + (((9653.04 * (x[1]/3600) * (1.0963e3 * (u[0]/ 50) ** 2) * 0.001) +\
+        (((x[4]/3600) * (z[1]*1e5)) * 0.001) + \
+        (((x[7]/3600) * (z[3]*1e5)) * 0.001) + \
+        (((x[10]/3600) * (z[5]*1e5)) * 0.001)  + \
+        (((x[13]/3600) * (z[7]*1e5)) * 0.001)) * 0.91) \
 
 
 # Certifique-se de que a função mani.model esteja implementada corretamente
@@ -123,17 +123,17 @@ for i, name in enumerate(algebraic_names):
 for i, name in enumerate(control_names):
     print(f"{name}: {float(u_opt[i]):.4f}")
 
-energybooster = (9653.04 * (x_ss[1]/3600) * (((1.0963e3 * (u_opt[0]/ 50) ** 2)/1e5)/0.98)*0.001)
-energybcs1 = ((9653.04 * (x_ss[4]/3600) * (z_ss[1]/9653.04))*0.001)
-energybcs2 = ((9653.04 * (x_ss[7]/3600) * (z_ss[3]/9653.04))*0.001)
-energybcs3 = ((9653.04 * (x_ss[10]/3600) * (z_ss[5]/9653.04))*0.001)
-energybcs4 = ((9653.04 * (x_ss[13]/3600) * (z_ss[7]/9653.04))*0.001)
-energytot = (energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4) * 910
+energybooster = (9653.04 * (x_ss[1]/3600) * (1.0963e3 * (u_opt[0]/50) ** 2) * 0.001)
+energybcs1 = (((x_ss[4]/3600) * (z_ss[1]*1e5)) * 0.001)
+energybcs2 = (((x_ss[7]/3600) * (z_ss[3]*1e5)) * 0.001)
+energybcs3 = (((x_ss[10]/3600) * (z_ss[5]*1e5)) * 0.001)
+energybcs4 = (((x_ss[13]/3600) * (z_ss[7]*1e5)) * 0.001)
+energytot = (energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4) * 0.91
 venda = 70000 * x_ss[1]
-print(f"valor vendido {venda}")
-print(f"Energia total valor: {energytot}")
-print(f"Energia do booster: {energybooster}")
-print(f"Energia do BCS 1: {energybcs1}")
-print(f"Energia do BCS 2: {energybcs2}")
-print(f"Energia do BCS 3: {energybcs3}")
-print(f"Energia do BCS 4: {energybcs4}")
+print(f"\nValor da venda do petróleo R${venda:.2f}")
+print(f"Preço da energia total: R${int(energytot[0]):.2f}")
+print(f"Energia do booster: {int(energybooster[0]):.2f} Kwh")
+print(f"Energia do BCS 1: {energybcs1:.2f} Kwh")
+print(f"Energia do BCS 2: {energybcs2:.2f} Kwh")
+print(f"Energia do BCS 3: {energybcs3:.2f} Kwh")
+print(f"Energia do BCS 4: {energybcs4:.2f} Kwh")
