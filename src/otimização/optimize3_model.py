@@ -15,27 +15,12 @@ z = MX.sym('z', 8)   # Variáveis algébricas
 rho = 984
 g = 9.81
 eff = 0.98
-# Parâmetros do problema
-head_booster = [(1.0963e3 * ( 65/ 50) ** 2)* 9,]
-# print(head_booster, 200/984)
-head_bcs1 = [1.0963e3 * ( u[2]/ 50) ** 2]
-head_bcs2 = [1.0963e3 * ( u[4]/ 50) ** 2]
-head_bcs3 = [1.0963e3 * ( u[6]/ 50) ** 2]
-head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 
-# Booster pump Head [m]
-booster_gasto = (9653.04 * (100/3600) * (((1.0963e3 * (60/50) ** 2)/1e5))*0.001)
-bcs_gasto = (((80/3600) * (100))*0.001)
-
-print(bcs_gasto)
-print(booster_gasto)
-
-objective = -(70000 * x[1]) + (((9653.04 * (x[1]/3600) * (1.0963e3 * (u[0]/ 50) ** 2) * 0.001) +\
-        (((x[4]/3600) * (z[1]*1e5)) * 0.001) + \
-        (((x[7]/3600) * (z[3]*1e5)) * 0.001) + \
-        (((x[10]/3600) * (z[5]*1e5)) * 0.001)  + \
-        (((x[13]/3600) * (z[7]*1e5)) * 0.001)) * 0.91) \
-
+objective = -(70000 * x[1]) + ((9653.04 * (x[1]/3600) * (1.0963e3 * (u[0]/ 50) ** 2) * 0.001) + \
+        ((x[4]/3600) * z[1] * 1e2) + \
+        ((x[7]/3600) * z[3] * 1e2) + \
+        ((x[10]/3600) * z[5] * 1e2)  + \
+        ((x[13]/3600) * z[7] * 1e2)) * 0.91
 
 # Certifique-se de que a função mani.model esteja implementada corretamente
 mani_model = mani.model(0, x, z, u)
@@ -48,7 +33,7 @@ nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
 solver = nlpsol('solver', 'ipopt', nlp)
 
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
-u0 = np.array([65., 1e5, 65., 1, 65., 1, 65., 1, 65., 1])
+u0 = np.array([65., 0.8e5, 65., 1, 65., 1, 65., 1, 65., 1])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
 x0 = [76.52500, 4 * 85,
       64.11666, 120.91641, 85,
@@ -124,12 +109,13 @@ for i, name in enumerate(control_names):
     print(f"{name}: {float(u_opt[i]):.4f}")
 
 energybooster = (9653.04 * (x_ss[1]/3600) * (1.0963e3 * (u_opt[0]/50) ** 2) * 0.001)
-energybcs1 = (((x_ss[4]/3600) * (z_ss[1]*1e5)) * 0.001)
-energybcs2 = (((x_ss[7]/3600) * (z_ss[3]*1e5)) * 0.001)
-energybcs3 = (((x_ss[10]/3600) * (z_ss[5]*1e5)) * 0.001)
-energybcs4 = (((x_ss[13]/3600) * (z_ss[7]*1e5)) * 0.001)
+energybcs1 = (x_ss[4]/3600) * (z_ss[1]*1e2)
+energybcs2 = (x_ss[7]/3600) * (z_ss[3]*1e2)
+energybcs3 = (x_ss[10]/3600) * (z_ss[5]*1e2)
+energybcs4 = (x_ss[13]/3600) * (z_ss[7]*1e2)
 energytot = (energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4) * 0.91
 venda = 70000 * x_ss[1]
+
 print(f"\nValor da venda do petróleo R${venda:.2f}")
 print(f"Preço da energia total: R${int(energytot[0]):.2f}")
 print(f"Energia do booster: {int(energybooster[0]):.2f} Kwh")
