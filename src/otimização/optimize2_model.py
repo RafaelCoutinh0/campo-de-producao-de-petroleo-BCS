@@ -12,27 +12,14 @@ u = MX.sym('u', 10)  # [f_BP, p_topside, f_ESP_1, alpha_1, ..., f_ESP_4, alpha_4
 x = MX.sym('x', 14)  # Estados (pressões, vazões, etc.)
 z = MX.sym('z', 8)   # Variáveis algébricas
 
-
 rho = 984
 g = 9.81
-eff = 0.98
-# Parâmetros do problema
-head_booster = [1.0963e3 * ( u[0]/ 50) ** 2]
-head_bcs1 = [1.0963e3 * ( u[2]/ 50) ** 2]
-head_bcs2 = [1.0963e3 * ( u[4]/ 50) ** 2]
-head_bcs3 = [1.0963e3 * ( u[6]/ 50) ** 2]
-head_bcs4 = [1.0963e3 * ( u[8]/ 50) ** 2]
 
-# Booster pump Head [m]
-
-lambda_energy = 0.1  # Peso menor para a penalidade
-objective = ((rho * g * x[1] * (1.0963e3 * (u[0] / 50) ** 2))  + \
-            z[1] + \
-            z[3] + \
-            z[5]  + \
-            z[7]) * 0.91
-
-
+objective = ((9653.04 * (x[1]/3600) * (1.0963e3 * (u[0]/ 50) ** 2) * 0.001) +
+             ((x[4]/3600) * z[1] * 1e2) +
+             ((x[7]/3600) * z[3] * 1e2) +
+             ((x[10]/3600) * z[5] * 1e2)  +
+             ((x[13]/3600) * z[7] * 1e2)) * 0.91
 
 # Certifique-se de que a função `mani.model` esteja implementada corretamente
 mani_model = mani.model(0, x, z, u)
@@ -102,28 +89,39 @@ y_ss = fsolve(mani_solver, np.concatenate((x0, z0)), xtol=1e-6, maxfev=20000)
 x_ss = y_ss[:14]
 z_ss = y_ss[14:]
 
-# Comparar otimização e fsolve
-print("\nComparação entre otimização e fsolve:")
+# Códigos ANSI para negrito e cores
+BOLD = '\033[1m'
+RESET = '\033[0m'
+CYAN = '\033[36m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+
+print(f"\n{CYAN}{BOLD}{'='*50}{RESET}\n{BOLD}Variáveis Controladas{RESET}")
 for i, name in enumerate(state_names):
-    print(f"{name}: Otimizado = {float(x_opt[i]):.4f}, fsolve = {float(x_ss[i]):.4f}")
+    print(f"{name}: Otimizado = {float(x_opt[i]):.4f}")
 for i, name in enumerate(algebraic_names):
-    print(f"{name}: Otimizado = {float(z_opt[i]):.4f}, fsolve = {float(z_ss[i]):.4f}")
+    print(f"{name}: Otimizado = {float(z_opt[i]):.4f}")
+
+print(f"{CYAN}{BOLD}{'='*50}{RESET}\n{BOLD}Variáveis Manipuladas{RESET}")
 for i, name in enumerate(control_names):
     print(f"{name}: {float(u_opt[i]):.4f}")
 
-energytot = (rho * g * x_ss[1] * (1.0963e3 * (u_opt[0] / 50) ** 2)) + \
-            (rho * g * x_ss[4] * (1.0963e3 * (u_opt[2] / 50) ** 2)) + \
-            (rho * g * x_ss[7] * (1.0963e3 * (u_opt[4] / 50) ** 2)) + \
-            (rho * g * x_ss[10] * (1.0963e3 * (u_opt[6] / 50) ** 2)) + \
-            (rho * g * x_ss[13] * (1.0963e3 * (u_opt[8] / 50) ** 2))
-energybooster = (rho * g * x_ss[1] * (1.0963e3 * (u_opt[0] / 50) ** 2))
-energybcs1 = (rho * g * x_ss[4] * (1.0963e3 * (u_opt[2] / 50) ** 2))
-energybcs2 = (rho * g * x_ss[7] * (1.0963e3 * (u_opt[4] / 50) ** 2))
-energybcs3 = (rho * g * x_ss[10] * (1.0963e3 * (u_opt[6] / 50) ** 2))
-energybcs4 = (rho * g * x_ss[13] * (1.0963e3 * (u_opt[8] / 50) ** 2))
-print(f"Energia total(KW): {energytot/1000}")
-print(f"Energia do booster(KW): {energybooster/1000}")
-print(f"Energia do BCS (KW): {energybcs1/1000}")
-print(f"Energia do BCS 2(KW): {energybcs2/1000}")
-print(f"Energia do BCS 3(KW): {energybcs3/1000}")
-print(f"Energia do BCS 4(KW): {energybcs4/1000}")
+print(f"{CYAN}{BOLD}{'='*50}{RESET}")
+
+# Cálculos de energia
+energybooster = (9653.04 * (x_ss[1]/3600) * (1.0963e3 * (u_opt[0]/50) ** 2) * 0.001)
+energybcs1 = (x_ss[4]/3600) * (z_ss[1]*1e2)
+energybcs2 = (x_ss[7]/3600) * (z_ss[3]*1e2)
+energybcs3 = (x_ss[10]/3600) * (z_ss[5]*1e2)
+energybcs4 = (x_ss[13]/3600) * (z_ss[7]*1e2)
+energytot = energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4
+
+print(f"{YELLOW}{BOLD}{'='*50}{RESET}\n{BOLD}Gasto Energético{RESET}")
+print(f"Energia total (KW): {int(energytot[0]):.2f}")
+print(f"Energia do booster (KW): {int(energybooster[0]):.2f}")
+print(f"Energia do BCS 1 (KW): {energybcs1:.2f}")
+print(f"Energia do BCS 2 (KW): {energybcs2:.2f}")
+print(f"Energia do BCS 3 (KW): {energybcs3:.2f}")
+print(f"Energia do BCS 4 (KW): {energybcs4:.2f}")
+
+

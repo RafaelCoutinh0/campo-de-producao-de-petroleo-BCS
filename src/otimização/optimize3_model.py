@@ -100,14 +100,23 @@ x_ss = y_ss[:14]
 z_ss = y_ss[14:]
 
 # Comparar otimização e fsolve
-print("\nComparação entre otimização e fsolve:")
+# Códigos ANSI para negrito e cores
+BOLD = '\033[1m'
+RESET = '\033[0m'
+CYAN = '\033[36m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+
+print(f"\n{CYAN}{BOLD}{'='*50}{RESET}\n{CYAN}{BOLD}Variáveis Controladas{RESET}")
 for i, name in enumerate(state_names):
     print(f"{name}: Otimizado = {float(x_opt[i]):.4f}, fsolve = {float(x_ss[i]):.4f}")
 for i, name in enumerate(algebraic_names):
     print(f"{name}: Otimizado = {float(z_opt[i]):.4f}, fsolve = {float(z_ss[i]):.4f}")
+print(f"{CYAN}{BOLD}{'='*50}{RESET}\n{CYAN}{BOLD}Variáveis Manipuladas{RESET}")
 for i, name in enumerate(control_names):
     print(f"{name}: {float(u_opt[i]):.4f}")
-
+print(f"{CYAN}{BOLD}{'='*50}{RESET}")
+# Cálculos de energia
 energybooster = (9653.04 * (x_ss[1]/3600) * (1.0963e3 * (u_opt[0]/50) ** 2) * 0.001)
 energybcs1 = (x_ss[4]/3600) * (z_ss[1]*1e2)
 energybcs2 = (x_ss[7]/3600) * (z_ss[3]*1e2)
@@ -116,10 +125,12 @@ energybcs4 = (x_ss[13]/3600) * (z_ss[7]*1e2)
 energytot = (energybooster + energybcs1 + energybcs2 + energybcs3 + energybcs4) * 0.91
 venda = 70000 * x_ss[1]
 
-print(f"\nValor da venda do petróleo R${venda:.2f}")
-print(f"Preço da energia total: R${int(energytot[0]):.2f}")
-print(f"Energia do booster: {int(energybooster[0]):.2f} Kwh")
-print(f"Energia do BCS 1: {energybcs1:.2f} Kwh")
-print(f"Energia do BCS 2: {energybcs2:.2f} Kwh")
-print(f"Energia do BCS 3: {energybcs3:.2f} Kwh")
-print(f"Energia do BCS 4: {energybcs4:.2f} Kwh")
+print(f"{GREEN}{BOLD}{'='*50}{RESET}\n{GREEN}{BOLD}VALORES DA FUNÇÃO OBJETIVO:{RESET}")
+print(f"\n{YELLOW}{BOLD}Valor da venda do petróleo{RESET}: R${venda:.2f}")
+print(f"{YELLOW}{BOLD}Preço da energia total{RESET}: R${int(energytot[0]):.2f}")
+print(f"{GREEN}{BOLD}Energia do booster{RESET}: {int(energybooster[0]):.2f} Kwh")
+print(f"{GREEN}{BOLD}Energia do BCS 1{RESET}: {energybcs1:.2f} Kwh")
+print(f"{GREEN}{BOLD}Energia do BCS 2{RESET}: {energybcs2:.2f} Kwh")
+print(f"{GREEN}{BOLD}Energia do BCS 3{RESET}: {energybcs3:.2f} Kwh")
+print(f"{GREEN}{BOLD}Energia do BCS 4{RESET}: {energybcs4:.2f} Kwh")
+
