@@ -517,3 +517,4 @@ def mapping_stationary(n_pert):
         'flag': flag,
     }
     return dados
+

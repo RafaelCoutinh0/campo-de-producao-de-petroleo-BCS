@@ -12,7 +12,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 from matplotlib.style.core import library
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import torch.distributions.uniform as urand
 import pickle
 
@@ -21,6 +21,15 @@ def load_data_from_pkl(file_path):
     with open(file_path, 'rb') as file:
         data = pickle.load(file)
     return data
+
+def split_dataset(dataset, train_ratio=0.6):
+    total_len = len(dataset)
+    assert total_len == 50_000, f"Dataset deve ter 100k amostras (atual: {total_len})"
+
+    train_len = int(total_len * train_ratio)
+    test_len = total_len - train_len
+    return random_split(dataset, [train_len, test_len])
+
 
 class MyLibraryDataset(Dataset):
     def __init__(self, library_data, feature_vars, label_vars, transform=None):
@@ -42,12 +51,15 @@ class MyLibraryDataset(Dataset):
     def denormalize(self, value, min_val, max_val):
         return (value + 1) * (max_val - min_val) / 2 + min_val # Reverter do intervalo [-1, 1] para o intervalo original
 
-
     def __getitem__(self, idx):
+        if idx >= 50_000:  # Garantir acesso válido
+            raise IndexError(f"Índice {idx} inválido para dataset com 100k amostras!")
+
         features = [
             self.normalize(self.library_data[var][idx], self.feature_min[var], self.feature_max[var])
-            for var in self.feature_vars # Normalizar features
+            for var in self.feature_vars
         ]
+
 
         labels = [
             self.library_data[var][idx] if var == 'flag' else
@@ -64,13 +76,14 @@ class MyLibraryDataset(Dataset):
     def __len__(self):
         return self.num_simulations
 
+
 # Definir a rede neural
 class RasmusNetwork(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
         layers = []  # Lista temporária para criar o Sequential
         hidden_dim = 150  # Hiperparâmetro encontrado
-        num_layers = 2    # Hiperparâmetro encontrado
+        num_layers = 3    # Hiperparâmetro encontrado
 
 
         # Criar camadas ocultas
@@ -165,7 +178,6 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=2.243656143480994e-05)  # Taxa de aprendizado encontrada
     lossfunc = nn.MSELoss()
 
-"""TREINAMENTO EM SI"""
 
 saidas =  ['q_main1', 'q_main2', 'q_main3', 'q_main4', 'q_tr',
         'P_man', 'P_fbhp1', 'P_fbhp2',
@@ -174,26 +186,26 @@ saidas =  ['q_main1', 'q_main2', 'q_main3', 'q_main4', 'q_tr',
         'P_intake3', 'P_intake4', 'dP_bcs1', 'dP_bcs2',
         'dP_bcs3', 'dP_bcs4']
 
-#%%
-from colorama import Fore, Style
-
-epochs = 301  # Número de épocas
-for epoch in range(epochs):
-    train_loss, y_labels, pred_labels = train(model, dataloader, optimizer, lossfunc)
-    y_labels = y_labels.tolist()
-    pred_labels = pred_labels.tolist()
-
-    if epoch % 10 == 0:
-        print(f"Epoch {epoch}: Train Loss = {train_loss}")
-        print("Comparação entre modelo e RNA:")
-
-        for i, name in enumerate(saidas):
-            # Calcular a diferença percentual
-            percent = abs(abs(abs(y_labels[-1][i]) - abs(pred_labels[-1][i])) / abs(y_labels[-1][i])) * 100
-            # Imprimir a diferença em vermelho se houver uma discrepância significativa
-            if percent > 5:  # Exemplo: se a diferença for maior que 5%, mostra em vermelho
-                print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.RED}{percent:.2f}%{Style.RESET_ALL}")
-            elif percent < 5 and percent > 1:
-                print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.YELLOW}{percent:.2f}%{Style.RESET_ALL}")
-            else:
-                print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.GREEN}{percent:.2f}%{Style.RESET_ALL}")
+# #%%
+# from colorama import Fore, Style
+#
+# epochs = 301  # Número de épocas
+# for epoch in range(epochs):
+#     train_loss, y_labels, pred_labels = train(model, dataloader, optimizer, lossfunc)
+#     y_labels = y_labels.tolist()
+#     pred_labels = pred_labels.tolist()
+#
+#     if epoch % 10 == 0:
+#         print(f"Epoch {epoch}: Train Loss = {train_loss}")
+#         print("Comparação entre modelo e RNA:")
+#
+#         for i, name in enumerate(saidas):
+#             # Calcular a diferença percentual
+#             percent = abs(abs(abs(y_labels[-1][i]) - abs(pred_labels[-1][i])) / abs(y_labels[-1][i])) * 100
+#             # Imprimir a diferença em vermelho se houver uma discrepância significativa
+#             if percent > 5:  # Exemplo: se a diferença for maior que 5%, mostra em vermelho
+#                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.RED}{percent:.2f}%{Style.RESET_ALL}")
+#             elif percent < 5 and percent > 1:
+#                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.YELLOW}{percent:.2f}%{Style.RESET_ALL}")
+#             else:
+#                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.GREEN}{percent:.2f}%{Style.RESET_ALL}")

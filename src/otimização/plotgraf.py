@@ -124,7 +124,7 @@ def plotar(n):
 import pickle
 import os
 def ler():
-    filename = 'dadosfinal.pkl'
+    filename = 'rna_training.pkl'
     if os.path.getsize(filename) > 0:
         with open(filename, "rb") as f:
             unpickler = pickle.Unpickler(f)
@@ -133,7 +133,7 @@ def ler():
 def juntar_escrever(n, dados_anteriores, dados_novos):
     if n == 1:
         dados_unidos = {chave: dados_anteriores[chave] + dados_novos[chave] for chave in dados_anteriores}
-        filename = 'dadosfinal.pkl'
+        filename = 'dados_training100k.pkl'
         import pickle
         with open(filename, "wb") as f:
             pickle.dump(dados_unidos, f)
@@ -141,6 +141,8 @@ def juntar_escrever(n, dados_anteriores, dados_novos):
             return dados_unidos
 
     elif n == 2:
-        filename = 'dadosfinal.pkl'
+        filename = 'dados_training100k.pkl'
         with open(filename, "wb") as f:
             pickle.dump(dados_novos, f)
+
+from initialization_oil_production_basic import *
