@@ -7,8 +7,7 @@ from matplotlib.style.core import library
 from torch.utils.data import Dataset, DataLoader
 import torch.distributions.uniform as urand
 import pickle
-import optuna
-from colorama import Fore, Style
+
 
 
 def load_data_from_pkl(file_path):
