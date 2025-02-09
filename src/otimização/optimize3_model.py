@@ -71,10 +71,10 @@ x0 = y_ss[:14]
 z0 = y_ss[14:]
 
 x0_full = np.concatenate((x0, z0, u0))
-
+u_ptopo = 0.8e5
 # Definir limites das variáveis
-lbx = [0] +[0]+ [0] * 12 + [0] * 8 + [35, 0.8e5, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
-ubx = [np.inf] * 14 + [np.inf] * 8 + [65, 1.2e5, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
+lbx = [0] +[0]+ [0] * 12 + [0] * 8 + [35, u_ptopo, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
+ubx = [np.inf] * 14 + [np.inf] * 8 + [65, u_ptopo, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
 
 # Resolver o problema de otimização
 sol = solver(x0=x0_full, lbx=lbx, ubx=ubx, lbg=lbg, ubg=ubg)
@@ -174,55 +174,66 @@ plt.ylabel('$P_{man}$ /bar', fontsize=15)
 plt.grid()
 plt.show()
 
+# Extraindo os multiplicadores de Lagrange
+lambda_opt = sol['lam_g']  # Multiplicadores de restrições
+mu_opt = sol['lam_x']  # Multiplicadores de limites das variáveis
 
-# %% Sesão de teste de resultados
-x0 = [76.52500, 4 * 85,
-      64.11666, 120.91641, 85,
-      64.11666, 120.91641, 85,
-      64.11666, 120.91641, 85,
-      64.11666, 120.91641, 85]
+# Imprimir multiplicadores das restrições
+print("\nMultiplicadores de Lagrange (Restrições de Igualdade e Desigualdade):")
+print(lambda_opt)
 
-z0 = [30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625,
-      30.03625, 239.95338-30.03625]
+# Imprimir multiplicadores das variáveis (limites superiores/inferiores)
+print("\nMultiplicadores de Lagrange (Limites das Variáveis de Decisão):")
+print(mu_opt)
 
-u0 = np.array([35, 1.2e5, 65, 0.9, 43.12, 0.44, 62.17, 0.29, 63.52, 0.22])
-mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
-y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
-
-# Separar resultados em x e z
-x_ss = y_ss[:14]
-z_ss = y_ss[14:]
-
-# Imprimir resultados com labels formatados
-print("\n" + "="*60 + "\nESTADOS (x):\n" + "="*60)
-for name, value in zip(state_names, x_ss):
-    print(f"{name.ljust(25)}: {value:.4f}")
-
-print("\n" + "="*60 + "\nVARIÁVEIS ALGÉBRICAS (z):\n" + "="*60)
-for name, value in zip(algebraic_names, z_ss):
-    print(f"{name.ljust(25)}: {value:.4f}")
-
-print("\n" + "="*60 + "\nU0 UTILIZADO:\n" + "="*60)
-print(u0)
-
-vazão = [x_ss[4], x_ss[7], x_ss[10], x_ss[13]]
-deltapoço = [z_ss[1],z_ss[3],z_ss[5],z_ss[7]]
-plt.figure(dpi=250)
-import numpy as np
-plt.plot(np.ravel(vazão), np.ravel(deltapoço), 'b.')
-plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
-plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
-plt.xlabel(r"$q_{main}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
-plt.ylabel('$dP_{bcs}$ /bar',fontsize = 15)
-plt.grid()
-plt.show()
-
-plt.figure(dpi=250)
-plt.plot(x_ss[1],x_ss[0], 'b.')
-plt.plot([110, 225], [0, 0], 'k--', linewidth=3)
-plt.xlabel(r"$q_{tr}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
-plt.ylabel('$P_{man}$ /bar', fontsize=15)
-plt.grid()
-plt.show()
+# # %% Sesão de teste de resultados
+# x0 = [76.52500, 4 * 85,
+#       64.11666, 120.91641, 85,
+#       64.11666, 120.91641, 85,
+#       64.11666, 120.91641, 85,
+#       64.11666, 120.91641, 85]
+#
+# z0 = [30.03625, 239.95338-30.03625,
+#       30.03625, 239.95338-30.03625,
+#       30.03625, 239.95338-30.03625,
+#       30.03625, 239.95338-30.03625]
+#
+# u0 = np.array([35, 1.2e5, 65, 0.9, 43.12, 0.44, 62.17, 0.29, 63.52, 0.22])
+# mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
+# y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
+#
+# # Separar resultados em x e z
+# x_ss = y_ss[:14]
+# z_ss = y_ss[14:]
+#
+# # Imprimir resultados com labels formatados
+# print("\n" + "="*60 + "\nESTADOS (x):\n" + "="*60)
+# for name, value in zip(state_names, x_ss):
+#     print(f"{name.ljust(25)}: {value:.4f}")
+#
+# print("\n" + "="*60 + "\nVARIÁVEIS ALGÉBRICAS (z):\n" + "="*60)
+# for name, value in zip(algebraic_names, z_ss):
+#     print(f"{name.ljust(25)}: {value:.4f}")
+#
+# print("\n" + "="*60 + "\nU0 UTILIZADO:\n" + "="*60)
+# print(u0)
+#
+# vazão = [x_ss[4], x_ss[7], x_ss[10], x_ss[13]]
+# deltapoço = [z_ss[1],z_ss[3],z_ss[5],z_ss[7]]
+# plt.figure(dpi=250)
+# import numpy as np
+# plt.plot(np.ravel(vazão), np.ravel(deltapoço), 'b.')
+# plt.plot([28.55, 20.77], [206.6, 58.07], 'k--', linewidth=3)
+# plt.plot([82.1, 53.6], [170.1, 44.7], 'k--', linewidth=3)
+# plt.xlabel(r"$q_{main}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
+# plt.ylabel('$dP_{bcs}$ /bar',fontsize = 15)
+# plt.grid()
+# plt.show()
+#
+# plt.figure(dpi=250)
+# plt.plot(x_ss[1],x_ss[0], 'b.')
+# plt.plot([110, 225], [0, 0], 'k--', linewidth=3)
+# plt.xlabel(r"$q_{tr}$ /(m$^3 \cdot$ h$^{-1}$)", fontsize=15)
+# plt.ylabel('$P_{man}$ /bar', fontsize=15)
+# plt.grid()
+# plt.show()
