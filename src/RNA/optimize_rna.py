@@ -108,7 +108,7 @@ def objective(u_tensor):
     x_pred = model_global(u_tensor)
     x_pred_real = normalizer.denormalize_outputs(x_pred)
 
-    return -(3000 * x_pred_real[4]) + (calculate_energy_cost(x_pred_real, u_tensor) * 0.9)
+    return -(15 * x_pred_real[4]) + (calculate_energy_cost(x_pred_real, u_tensor) * 0.9)
 
 # ==========================
 # 🔍 EXECUÇÃO DA OTIMIZAÇÃO

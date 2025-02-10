@@ -15,7 +15,7 @@ from torch.utils.data import Dataset, DataLoader, random_split
 import torch.distributions.uniform as urand
 import pickle
 import matplotlib.pyplot as plt
-from colorama import Fore, Style
+# from colorama import Fore, Style
 
 def load_data_from_pkl(file_path):
     with open(file_path, 'rb') as file:
