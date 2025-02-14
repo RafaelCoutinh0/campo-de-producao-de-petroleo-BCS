@@ -1,4 +1,3 @@
-
 #%% importações do código
 import torch
 import numpy as np
@@ -7,15 +6,10 @@ from matplotlib.style.core import library
 from torch.utils.data import Dataset, DataLoader
 import torch.distributions.uniform as urand
 import pickle
+from torch.utils.data import random_split
 
 
-
-def load_data_from_pkl(file_path):
-    with open(file_path, 'rb') as file:
-        data = pickle.load(file)
-    return data
-
-def split_dataset(dataset, train_ratio=0.9):
+def split_dataset(dataset, train_ratio=0.7):
     """
     Divide o dataset em conjuntos de treinamento e teste.
 
@@ -32,8 +26,6 @@ def split_dataset(dataset, train_ratio=0.9):
 
     train_dataset, test_dataset = random_split(dataset, [train_len, test_len])
     return train_dataset, test_dataset
-
-
 def load_data_from_pkl(file_path):
     with open(file_path, 'rb') as file:
         data = pickle.load(file)
@@ -86,15 +78,15 @@ class RasmusNetwork(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
         layers = []  # Lista temporária para criar o Sequential
-        hidden_dim = 75  # Hiperparâmetro encontrado
-        num_layers = 3   # Hiperparâmetro encontrado
+        hidden_dim = 150  # Hiperparâmetro encontrado
+        num_layers = 2    # Hiperparâmetro encontrado
 
 
         # Criar camadas ocultas
         for _ in range(num_layers):
             layers.append(nn.Linear(input_dim if not layers else hidden_dim, hidden_dim))
+            layers.append(nn.Tanh())  # Função de ativação
 
-            layers.append(nn.Tanh())# Função de ativação
         # Camada de saída
         layers.append(nn.Linear(hidden_dim, output_dim))
 
@@ -173,7 +165,7 @@ def test(model, dataloader, lossfunc):
 
 
 if __name__ == "__main__":
-    file_path = '/content/drive/My Drive/rna_training.pkl'
+    file_path = 'rna_training.pkl'
     library_data = load_data_from_pkl(file_path)
 
     # Variáveis selecionadas
@@ -194,43 +186,46 @@ if __name__ == "__main__":
     # Criar o dataset completo
     dataset = MyLibraryDataset(library_data, feature_vars, label_vars)
     # Dividir o dataset em treinamento e teste
-    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.8)
+    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.7)
     # Criar os DataLoaders para treinamento e teste
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
+    
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Rodando na {device}")
 
     # Criar o modelo
     model = RasmusNetwork(input_dim=len(feature_vars), output_dim=len(label_vars)).to(device)
-    state_dict = torch.load('rna_flag_model.pth')
-    # Carregue os pesos no modelo inicializado
-    model.load_state_dict(state_dict)
-    optimizer = torch.optim.Adam(model.parameters(), lr= 0.0012549656701042393)  # Taxa de aprendizado encontrada
+    optimizer = torch.optim.Adam(model.parameters(), lr=2.243656143480994e-05)  # Taxa de aprendizado encontrada
     lossfunc = nn.BCELoss()
 
 """TREINAMENTO EM SI"""
 
 saidas =  ['flag']
-    # epochs = 301  # Número de épocas
-    # for epoch in range(epochs):
-    #     model = FlagNetwork(input_dim=len(feature_vars), output_dim=len(label_vars)).to(device)
-    #     train_loss, y_labels, pred_labels = train(model, dataloader, optimizer, lossfunc)
-    #     y_labels = y_labels.tolist()
-    #     pred_labels = pred_labels.tolist()
-    #
-    #     if epoch % 10 == 0:
-    #         print(f"Epoch {epoch}: Train Loss = {train_loss}")
-    #         print("Comparação entre modelo e RNA:")
-    #
-    #         for i, name in enumerate(saidas):
-    #             # Calcular a diferença percentual
-    #             percent = abs(abs(abs(y_labels[-1][i]) - abs(pred_labels[-1][i])) / abs(y_labels[-1][i])) * 100
-    #             # Imprimir a diferença em vermelho se houver uma discrepância significativa
-    #             if percent > 5:  # Exemplo: se a diferença for maior que 5%, mostra em vermelho
-    #                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.RED}{percent:.2f}%{Style.RESET_ALL}")
-    #             elif percent < 5 and percent > 1:
-    #                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.YELLOW}{percent:.2f}%{Style.RESET_ALL}")
-    #             else:
-    #                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.GREEN}{percent:.2f}%{Style.RESET_ALL}")
+
+#%%
+from colorama import Fore, Style
+
+epochs = 301  # Número de épocas
+for epoch in range(epochs):
+    train_loss, y_labels, pred_labels = train(model, dataloader, optimizer, lossfunc)
+    y_labels = y_labels.tolist()
+    pred_labels = pred_labels.tolist()
+
+    if epoch % 10 == 0:
+        print(f"\nEpoch {epoch}: Train Loss = {train_loss}")
+        for i, name in enumerate(saidas):
+            if (pred_labels[-1][i] >= 0.5 and  y_labels[-1][i] >= 0.5) or (pred_labels[-1][i] < 0.5 and y_labels[-1][i] < 0.5):
+                print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+
+for epoch in range(epochs):
+    # Testar o modelo após o treinamento
+    test_loss, y_labels, pred_labels = test(model, test_dataloader, lossfunc)
+    print(f"\nTeste Final: Loss = {test_loss}")
+    for i, name in enumerate(saidas):
+        if (pred_labels[-1][i] >= 0.5 and y_labels[-1][i] >= 0.5) or (pred_labels[-1][i] < 0.5 and y_labels[-1][i] < 0.5):
+            print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")

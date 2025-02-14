@@ -30,12 +30,22 @@ restqmain1 = vertcat(x[4] - ((z[1] + 334.2554) / 19.0913), ((z[1] + 193.8028) / 
 restqmain2 = vertcat(x[7] - ((z[3] + 334.2554) / 19.0913), ((z[3] + 193.8028) / 4.4338) - x[7])
 restqmain3 = vertcat(x[10] - ((z[5] + 334.2554) / 19.0913), ((z[5] + 193.8028) / 4.4338) - x[10])
 restqmain4 = vertcat(x[13] - ((z[7] + 334.2554) / 19.0913), ((z[7] + 193.8028) / 4.4338) - x[13])
+# Restrições de pressão de fundo de poço (restfbprest)
+restfbprest1 = x[2] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
+restfbprest2 = x[5] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
+restfbprest3 = x[8] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
+restfbprest4 = x[11] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
 
 # Restrições de igualdade (modelo do sistema)
 g_equality = vertcat(*mani_model)
 
+Poro = ((750 * 9.81 * (1029))/1e5)
+
+print(Poro)
+vazao = 50
+
 # Restrições de desigualdade (limites operacionais)
-g_inequality = vertcat(restqmain1, restqmain2, restqmain3, restqmain4)
+g_inequality = vertcat(restqmain1, restqmain2, restqmain3, restqmain4,restfbprest1, restfbprest2, restfbprest3, restfbprest4)
 
 # Concatenar todas as restrições
 g_constraints = vertcat(g_equality, g_inequality)
@@ -50,9 +60,10 @@ ubg = [0.0] * num_eq + [np.inf] * num_ineq
 # Configuração do problema de otimização
 nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
 solver = nlpsol('solver', 'ipopt', nlp)
-
+u_ptopo = 0.8e5
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
-u0 = np.array([50., 1.0e5, 50., 0.5, 50., 0.5, 50., 0.5, 50., 0.5])
+freq = 45.
+u0 = np.array([freq, u_ptopo, freq, 0.1, freq, 0.1, freq, 0.1,freq, 0.1])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
 x0 = [76.52500, 4 * 85,
       64.11666, 120.91641, 85,
@@ -71,7 +82,7 @@ x0 = y_ss[:14]
 z0 = y_ss[14:]
 
 x0_full = np.concatenate((x0, z0, u0))
-u_ptopo = 0.8e5
+
 # Definir limites das variáveis
 lbx = [0] +[0]+ [0] * 12 + [0] * 8 + [35, u_ptopo, 35, 0, 35, 0, 35, 0, 35, 0] #Inferiores
 ubx = [np.inf] * 14 + [np.inf] * 8 + [65, u_ptopo, 65, 1, 65, 1, 65,1, 65, 1]  # Superiores
@@ -109,7 +120,6 @@ control_names = [
     "f_ESP_3 (Hz)", "alpha_3 (-)",
     "f_ESP_4 (Hz)", "alpha_4 (-)"
 ]
-
 # Verificar consistência com fsolve
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u_opt)])
 y_ss = fsolve(mani_solver, np.concatenate((x0, z0)))
@@ -237,3 +247,18 @@ print(mu_opt)
 # plt.ylabel('$P_{man}$ /bar', fontsize=15)
 # plt.grid()
 # plt.show()
+# print(x_ss)
+# for i in range(14):  # De 0 a 13
+#     print(f"x_ss[{i}] - x_opt[{i}] = {x_ss[i] - x_opt[i]}")
+#
+# restfbprest1 = x_opt[2] - (((984 * 9.81 * 1029.3) - ((x_opt[4]/3600)/6.9651e-9))/1e5)
+# restfbprest2 = x_opt[5] - (((984 * 9.81 * 1029.3) - ((x_opt[7]/3600)/6.9651e-9))/1e5)
+# restfbprest3 = x_opt[8] - (((984 * 9.81 * 1029.3) - ((x_opt[10]/3600)/6.9651e-9))/1e5)
+# restfbprest4 = x_opt[11] - (((984 * 9.81 * 1029.3) - ((x_opt[13]/3600)/6.9651e-9))/1e5)
+# print(restfbprest1, restfbprest2, restfbprest3, restfbprest4)
+restfbprest1 = (((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)
+restfbprest2 = ((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1
+restfbprest3 = (((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5) * 1.2
+restfbprest4 = (((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5) *  1.3
+print(restfbprest1, restfbprest2, restfbprest3, restfbprest4)
+
