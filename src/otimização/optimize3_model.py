@@ -30,19 +30,29 @@ restqmain1 = vertcat(x[4] - ((z[1] + 334.2554) / 19.0913), ((z[1] + 193.8028) / 
 restqmain2 = vertcat(x[7] - ((z[3] + 334.2554) / 19.0913), ((z[3] + 193.8028) / 4.4338) - x[7])
 restqmain3 = vertcat(x[10] - ((z[5] + 334.2554) / 19.0913), ((z[5] + 193.8028) / 4.4338) - x[10])
 restqmain4 = vertcat(x[13] - ((z[7] + 334.2554) / 19.0913), ((z[7] + 193.8028) / 4.4338) - x[13])
+# Parâmetros do campo (em SI)
+Patm = 0.8                # pressão atmosférica em bar              # aceleração da gravidade (m/s²)
+TVD = 1029.2            # profundidade vertical (m)
+
+# Cálculo da pressão estática (em bar)
+P_static = Patm + (rho * g * TVD) / 1e5   # ≈ 100.35 bar
+
+# Cálculo da queda de pressão por circulação (ΔP_circ)
+# Aqui usamos o termo presente no seu código: ((82.1096/3600)/6.9651e-9)
+DeltaP_circ = (((82.1096 / 3600) / 6.9651e-9)) / 1e5  # ≈ 32.75 bar
+
+# Aplicando um fator de segurança (por exemplo, 1.1)
+P_target = (P_static - DeltaP_circ) * 1.1# ≈ 74.14 bar
+print(P_target)
+
 # Restrições de pressão de fundo de poço (restfbprest)
-restfbprest1 = x[2] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
-restfbprest2 = x[5] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
-restfbprest3 = x[8] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
-restfbprest4 = x[11] - (((((984 * 9.81 * 1029.2) - ((82.1096/3600)/6.9651e-9))/1e5)) * 1.1)
+restfbprest1 = x[2] - P_target
+restfbprest2 = x[5] - P_target
+restfbprest3 = x[8] - P_target
+restfbprest4 = x[11] - P_target
 
 # Restrições de igualdade (modelo do sistema)
 g_equality = vertcat(*mani_model)
-
-Poro = ((750 * 9.81 * (1029))/1e5)
-
-print(Poro)
-vazao = 50
 
 # Restrições de desigualdade (limites operacionais)
 g_inequality = vertcat(restqmain1, restqmain2, restqmain3, restqmain4,restfbprest1, restfbprest2, restfbprest3, restfbprest4)
@@ -62,8 +72,8 @@ nlp = {'x': vertcat(x, z, u), 'f': objective, 'g': g_constraints}
 solver = nlpsol('solver', 'ipopt', nlp)
 u_ptopo = 0.8e5
 # Valores iniciais para as variáveis manipuláveis (u), estados (x) e algébricas (z)
-freq = 45.
-u0 = np.array([freq, u_ptopo, freq, 0.1, freq, 0.1, freq, 0.1,freq, 0.1])
+freq = 65.
+u0 = np.array([freq, u_ptopo, freq, 1, freq, 1, freq, 1,freq, 1])
 mani_solver = lambda y: np.array([float(i) for i in mani.model(0, y[:14], y[14:], u0)])
 x0 = [76.52500, 4 * 85,
       64.11666, 120.91641, 85,

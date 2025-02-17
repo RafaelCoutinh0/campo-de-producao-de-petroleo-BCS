@@ -165,7 +165,7 @@ def test(model, dataloader, lossfunc):
 
 
 if __name__ == "__main__":
-    file_path = 'rna_training.pkl'
+    file_path = 'dados_training_Fbp.pkl'
     library_data = load_data_from_pkl(file_path)
 
     # Variáveis selecionadas
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     # Criar o dataset completo
     dataset = MyLibraryDataset(library_data, feature_vars, label_vars)
     # Dividir o dataset em treinamento e teste
-    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.7)
+    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.8)
     # Criar os DataLoaders para treinamento e teste
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
@@ -196,6 +196,9 @@ if __name__ == "__main__":
 
     # Criar o modelo
     model = RasmusNetwork(input_dim=len(feature_vars), output_dim=len(label_vars)).to(device)
+    state_dict = torch.load('rna_flag_model_fbp.pth')
+    # Carregue os pesos no modelo inicializado
+    model.load_state_dict(state_dict)
     optimizer = torch.optim.Adam(model.parameters(), lr=2.243656143480994e-05)  # Taxa de aprendizado encontrada
     lossfunc = nn.BCELoss()
 
@@ -206,9 +209,9 @@ saidas =  ['flag']
 #%%
 from colorama import Fore, Style
 
-epochs = 301  # Número de épocas
+epochs = 901  # Número de épocas
 for epoch in range(epochs):
-    train_loss, y_labels, pred_labels = train(model, dataloader, optimizer, lossfunc)
+    train_loss, y_labels, pred_labels = train(model, train_dataloader, optimizer, lossfunc)
     y_labels = y_labels.tolist()
     pred_labels = pred_labels.tolist()
 
@@ -220,7 +223,7 @@ for epoch in range(epochs):
             else:
                 print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
 
-for epoch in range(epochs):
+for epoch in range(1):
     # Testar o modelo após o treinamento
     test_loss, y_labels, pred_labels = test(model, test_dataloader, lossfunc)
     print(f"\nTeste Final: Loss = {test_loss}")
@@ -229,3 +232,9 @@ for epoch in range(epochs):
             print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
         else:
             print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+
+
+# Salvar o modelo inteiro (estrutura + parâmetros)
+model_path = "rna_flag_model_fbp.pth"
+torch.save(model.state_dict(), model_path)
+print(f"Modelo completo salvo em {model_path}")
