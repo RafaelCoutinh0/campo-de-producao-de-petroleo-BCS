@@ -361,10 +361,10 @@ def mapping_stationary(n_pert):
         z_ss = y_ss[-8:]
         x_ss = y_ss[0:-8]
         if  x_ss[1] == 340:
-            valve_open1[i] = np.random.uniform(.1, .9)
-            valve_open2[i] = np.random.uniform(.1, .9)
-            valve_open3[i] = np.random.uniform(.1, .9)
-            valve_open4[i] = np.random.uniform(.1, .9)
+            valve_open1[i] = np.random.uniform(0, 1)
+            valve_open2[i] = np.random.uniform(0, 1)
+            valve_open3[i] = np.random.uniform(0, 1)
+            valve_open4[i] = np.random.uniform(0, 1)
             bcs_freq1[i] = np.random.uniform(35., 65.)
             bcs_freq2[i] = np.random.uniform(35., 65.)
             bcs_freq3[i] = np.random.uniform(35., 65.)
@@ -399,12 +399,12 @@ def mapping_stationary(n_pert):
 
         if x_ss[0] > 0 and restqmain1 and restqmain2 and restqmain3 and restqmain4:
             Flag = 1
-            flag.append(Flag)
         else:
             Flag = 0
-            flag.append(Flag)
-
-
+        if x_ss[2] < 74.14291355695116 or x_ss[5] < 74.14291355695116 or \
+                x_ss[8] < 74.14291355695116 or x_ss[11] < 74.14291355695116 and Flag == 1:
+            Flag = 0
+        flag.append(Flag)
         est_P_man.append(x_ss[0])
         est_q_tr.append(x_ss[1])
         est_P_fbhp1.append(x_ss[2])

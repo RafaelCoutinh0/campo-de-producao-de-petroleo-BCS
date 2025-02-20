@@ -7,29 +7,22 @@ from torch.utils.data import Dataset, DataLoader
 import torch.distributions.uniform as urand
 import pickle
 from torch.utils.data import random_split
+from sklearn.metrics import confusion_matrix
+from torch.utils.data import Dataset, DataLoader, random_split
+import pickle
 
-
-def split_dataset(dataset, train_ratio=0.7):
-    """
-    Divide o dataset em conjuntos de treinamento e teste.
-
-    Args:
-        dataset (Dataset): O dataset completo a ser dividido.
-        train_ratio (float): A proporção do conjunto de treinamento.
-
-    Returns:
-        train_dataset, test_dataset: Os datasets de treinamento e teste.
-    """
-    total_len = len(dataset)
-    train_len = int(total_len * train_ratio)
-    test_len = total_len - train_len
-
-    train_dataset, test_dataset = random_split(dataset, [train_len, test_len])
-    return train_dataset, test_dataset
 def load_data_from_pkl(file_path):
     with open(file_path, 'rb') as file:
-        data = pickle.load(file)
-    return data
+        return pickle.load(file)
+
+
+def split_dataset(dataset, train_ratio=0.5):
+    total_len = len(dataset)
+    assert total_len == 100_000, f"Dataset deve ter 100k amostras (atual: {total_len})"
+
+    train_len = int(total_len * train_ratio)
+    test_len = total_len - train_len
+    return random_split(dataset, [train_len, test_len])
 
 class MyLibraryDataset(Dataset):
     def __init__(self, library_data, feature_vars, label_vars, transform=None):
@@ -165,7 +158,7 @@ def test(model, dataloader, lossfunc):
 
 
 if __name__ == "__main__":
-    file_path = 'dados_training_Fbp.pkl'
+    file_path = 'rna_training_sbai_fbp.pkl'
     library_data = load_data_from_pkl(file_path)
 
     # Variáveis selecionadas
@@ -186,19 +179,19 @@ if __name__ == "__main__":
     # Criar o dataset completo
     dataset = MyLibraryDataset(library_data, feature_vars, label_vars)
     # Dividir o dataset em treinamento e teste
-    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.8)
+    train_dataset, test_dataset = split_dataset(dataset, train_ratio=0.5)
     # Criar os DataLoaders para treinamento e teste
-    train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False)
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Rodando na {device}")
 
     # Criar o modelo
     model = RasmusNetwork(input_dim=len(feature_vars), output_dim=len(label_vars)).to(device)
-    state_dict = torch.load('rna_flag_model_fbp.pth')
+    # state_dict = torch.load('rna_flag_model_fbp.pth')
     # Carregue os pesos no modelo inicializado
-    model.load_state_dict(state_dict)
+    # model.load_state_dict(state_dict)
     optimizer = torch.optim.Adam(model.parameters(), lr=2.243656143480994e-05)  # Taxa de aprendizado encontrada
     lossfunc = nn.BCELoss()
 
@@ -208,12 +201,19 @@ saidas =  ['flag']
 
 #%%
 from colorama import Fore, Style
-
-epochs = 901  # Número de épocas
+train_list = []
+test_list = []
+epochs = 5001  # Número de épocas
 for epoch in range(epochs):
     train_loss, y_labels, pred_labels = train(model, train_dataloader, optimizer, lossfunc)
+    train_list.append(train_loss)
     y_labels = y_labels.tolist()
     pred_labels = pred_labels.tolist()
+
+
+    test_loss, y_labels, pred_labels = test(model, test_dataloader, lossfunc)
+    test_list.append(test_loss)
+
 
     if epoch % 10 == 0:
         print(f"\nEpoch {epoch}: Train Loss = {train_loss}")
@@ -223,18 +223,88 @@ for epoch in range(epochs):
             else:
                 print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
 
-for epoch in range(1):
-    # Testar o modelo após o treinamento
-    test_loss, y_labels, pred_labels = test(model, test_dataloader, lossfunc)
-    print(f"\nTeste Final: Loss = {test_loss}")
-    for i, name in enumerate(saidas):
-        if (pred_labels[-1][i] >= 0.5 and y_labels[-1][i] >= 0.5) or (pred_labels[-1][i] < 0.5 and y_labels[-1][i] < 0.5):
-            print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
-        else:
-            print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+        print(f"\nTeste Final: Loss = {test_loss}")
+        for i, name in enumerate(saidas):
+            if (pred_labels[-1][i] >= 0.5 and y_labels[-1][i] >= 0.5) or (pred_labels[-1][i] < 0.5 and y_labels[-1][i] < 0.5):
+                print(f"{Fore.GREEN}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Style.RESET_ALL}")
 
 
 # Salvar o modelo inteiro (estrutura + parâmetros)
 model_path = "rna_flag_model_fbp.pth"
 torch.save(model.state_dict(), model_path)
 print(f"Modelo completo salvo em {model_path}")
+
+import matplotlib.pyplot as plt
+
+plt.figure(dpi=250)
+plt.plot(train_list, 'b')
+plt.plot(test_list, 'r')
+plt.xlabel("'Época", fontsize=20)
+plt.ylabel('Loss', fontsize=20)
+plt.grid()
+plt.show()
+import seaborn as sns
+def test(model, dataloader, lossfunc):
+    model.eval()
+    cumloss = 0.0
+    y_labels, pred_labels = [], []
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            pred = model(X)
+            loss = lossfunc(pred, y)
+            y_labels.extend(y.cpu().tolist())
+            pred_labels.extend(pred.cpu().tolist())
+            cumloss += loss.item()
+    avg_loss = cumloss / len(dataloader)
+
+    # Converter para valores binários
+    true_binary = [int(yl[0] >= 0.5) for yl in y_labels]
+    pred_binary = [int(pl[0] >= 0.5) for pl in pred_labels]
+
+    # Calcular a matriz de confusão
+    cm = confusion_matrix(true_binary, pred_binary)
+
+    # Converter os valores da matriz para porcentagens por linha
+    cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
+
+    # Plotar a matriz de confusão com porcentagens
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(
+        cm_percent,
+        annot=True,
+        fmt='.2f',
+        cmap='Blues',
+        xticklabels=['Negativo (0)', 'Positivo (1)'],
+        yticklabels=['Negativo (0)', 'Positivo (1)'],
+        vmin=0,
+        vmax=100
+    )
+    plt.xlabel('Previsto')
+    plt.ylabel('Real')
+    # plt.title('Matriz de Confusão (% por classe real)')
+    plt.show()
+
+    # Exibir as métricas, caso a matriz seja 2x2
+    if cm.shape == (2, 2):
+        tn, fp, fn, tp = cm.ravel()
+        total = tp + tn + fp + fn
+        print(f"Acurácia: {(tp + tn) / total:.2%}")
+        print(f"Precisão: {tp / (tp + fp):.2%}" if (tp + fp) > 0 else "Precisão: N/A")
+        print(f"Recall: {tp / (tp + fn):.2%}")
+        print(f"Especificidade: {tn / (tn + fp):.2%}")
+
+    return avg_loss, y_labels, pred_labels
+
+
+if __name__ == "__main__":
+    optimizer = torch.optim.Adam(model.parameters(), lr=2.24e-5)
+    lossfunc = nn.BCELoss()
+    epochs = 1
+    for epoch in range(epochs):
+        train_loss = train(model, train_dataloader, optimizer, lossfunc)
+        print(f"Epoch {epoch}: Train Loss = {train_loss}")
+    test_loss = test(model, test_dataloader, lossfunc)
+    print(f"Teste Final: Loss = {test_loss}")

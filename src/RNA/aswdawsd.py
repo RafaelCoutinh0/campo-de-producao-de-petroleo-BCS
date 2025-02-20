@@ -139,7 +139,7 @@ def test(model, dataloader, lossfunc):
 
 
 if __name__ == "__main__":
-    file_path = '../otimização/dados_training_Fbp.pkl'
+    file_path = 'rna_training_sbai_fbp.pkl'
     library_data = load_data_from_pkl(file_path)
     feature_vars = ['p_topo', 'valve1', 'valve2', 'valve3', 'valve4', 'bcs1_freq', 'bcs2_freq', 'bcs3_freq', 'bcs4_freq', 'booster_freq']
     label_vars = ['flag']

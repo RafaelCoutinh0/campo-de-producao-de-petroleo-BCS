@@ -180,7 +180,7 @@ def test(model, dataloader, lossfunc):
 
 
 if __name__ == "__main__":
-    file_path = 'dados_training_perfect.pkl'
+    file_path = 'rna_training_sbai_fbp.pkl'
     library_data = load_data_from_pkl(file_path)
 
     # Variáveis selecionadas
@@ -230,8 +230,8 @@ saidas =  ['q_main1', 'q_main2', 'q_main3', 'q_main4', 'q_tr',
         'P_intake3', 'P_intake4', 'dP_bcs1', 'dP_bcs2',
         'dP_bcs3', 'dP_bcs4']
 
-# #%%
-# from colorama import Fore, Style
+#%%
+from colorama import Fore, Style
 #
 # epochs = 301  # Número de épocas
 # for epoch in range(epochs):
@@ -254,7 +254,7 @@ saidas =  ['q_main1', 'q_main2', 'q_main3', 'q_main4', 'q_tr',
 #             else:
 #                 print(f"{name}: modelo = {y_labels[-1][i]}, RNA = {pred_labels[-1][i]}, {Fore.GREEN}{percent:.2f}%{Style.RESET_ALL}")
 def SaveNetwork():
-    model_path = "rna_global_model_sbai.pth"
+    model_path = "rna_global_model_sbai_ultimate.pth"
     torch.save(model.state_dict(), model_path)
     print(f"Modelo completo salvo em {model_path}")
 
@@ -266,10 +266,10 @@ saidas = ['q_main1', 'q_main2', 'q_main3', 'q_main4', 'q_tr',
           'P_choke3', 'P_choke4', 'P_intake1', 'P_intake2',
           'P_intake3', 'P_intake4', 'dP_bcs1', 'dP_bcs2',
           'dP_bcs3', 'dP_bcs4']
-
+#
 # train_list = []
 # test_list = []
-# epochs = 1000  # Número de épocas
+# epochs = 10000  # Número de épocas
 # for epoch in range(epochs):
 #     train_loss, y_labels, pred_labels = train(model, train_dataloader, optimizer, lossfunc)
 #     train_list.append(train_loss)
